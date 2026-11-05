@@ -8,6 +8,13 @@
       "when": 1793879083894,
       "tag": "0000_travel_schema",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1793880484385,
+      "tag": "0001_groups",
+      "breakpoints": true
     }
   ]
 }

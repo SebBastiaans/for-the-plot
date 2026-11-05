@@ -14,6 +14,71 @@ export type Database = {
   }
   public: {
     Tables: {
+      group_members: {
+        Row: {
+          group_id: string
+          joined_at: string
+          user_id: string
+        }
+        Insert: {
+          group_id: string
+          joined_at?: string
+          user_id: string
+        }
+        Update: {
+          group_id?: string
+          joined_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_members_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "group_members_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      groups: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          invite_code: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: string
+          invite_code?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          invite_code?: string
+          name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "groups_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -217,6 +282,7 @@ export type Database = {
           created_at: string
           created_by: string
           end_date: string
+          group_id: string | null
           id: string
           start_date: string
           story: string | null
@@ -228,6 +294,7 @@ export type Database = {
           created_at?: string
           created_by: string
           end_date: string
+          group_id?: string | null
           id?: string
           start_date: string
           story?: string | null
@@ -239,6 +306,7 @@ export type Database = {
           created_at?: string
           created_by?: string
           end_date?: string
+          group_id?: string | null
           id?: string
           start_date?: string
           story?: string | null
@@ -252,6 +320,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "trips_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
         ]
       }
     }
@@ -259,7 +334,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_see_trip: { Args: { _trip: string }; Returns: boolean }
+      create_group: { Args: { _name: string }; Returns: string }
+      group_name_for_invite: { Args: { _code: string }; Returns: string }
+      is_group_member: { Args: { _group: string }; Returns: boolean }
+      is_group_owner: { Args: { _group: string }; Returns: boolean }
       is_trip_owner: { Args: { _trip: string }; Returns: boolean }
+      join_group: { Args: { _code: string }; Returns: string }
     }
     Enums: {
       [_ in never]: never
