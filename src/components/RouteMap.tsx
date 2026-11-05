@@ -17,7 +17,7 @@ export default function RouteMap({ stops, pins }: { stops: MapStop[]; pins: MapP
     const map = new maplibregl.Map({
       container: el.current,
       style: "https://tiles.openfreemap.org/styles/dark",
-      center: [stops[0].lng, stops[0].lat],
+      center: [stops[0]!.lng, stops[0]!.lat],
       zoom: 5,
     });
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }));

@@ -49,7 +49,7 @@ export default function Globe({
   useEffect(() => {
     const el = wrap.current;
     if (!el) return;
-    const ro = new ResizeObserver(([e]) => setSize({ w: e.contentRect.width, h: e.contentRect.height }));
+    const ro = new ResizeObserver(([e]) => e && setSize({ w: e.contentRect.width, h: e.contentRect.height }));
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
@@ -80,16 +80,16 @@ export default function Globe({
         hexPolygonResolution={3}
         hexPolygonMargin={0.55}
         hexPolygonUseDots
-        hexPolygonAltitude={(f) => {
+        hexPolygonAltitude={(f: object) => {
           const code = (f as Feature).properties.ISO_A2;
           return statuses[code] ? (code === hover ? 0.03 : 0.015) : 0.005;
         }}
-        hexPolygonColor={(f) => {
+        hexPolygonColor={(f: object) => {
           const s = statuses[(f as Feature).properties.ISO_A2];
           if (!s) return colors.dim;
           return s.status === "visited" ? colors.visited : colors.planned;
         }}
-        hexPolygonLabel={(f) => {
+        hexPolygonLabel={(f: object) => {
           const p = (f as Feature).properties;
           const s = statuses[p.ISO_A2];
           const sub = s
@@ -99,8 +99,8 @@ export default function Globe({
             : "Not visited yet";
           return `<div style="font-family:Manrope,sans-serif;background:rgba(16,38,27,.92);border:1px solid rgba(160,196,157,.35);padding:6px 10px;border-radius:8px;color:#f1efe2"><b>${p.NAME}</b><br/><span style="opacity:.7;font-size:12px">${sub}</span></div>`;
         }}
-        onHexPolygonHover={(f) => setHover(f ? (f as Feature).properties.ISO_A2 : null)}
-        onHexPolygonClick={(f) => {
+        onHexPolygonHover={(f: object) => setHover(f ? (f as Feature).properties.ISO_A2 : null)}
+        onHexPolygonClick={(f: object) => {
           const code = (f as Feature).properties.ISO_A2;
           if (statuses[code]) onCountryClick(code);
         }}

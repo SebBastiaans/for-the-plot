@@ -77,5 +77,5 @@ export async function geocode(q: string, countryCode?: string): Promise<GeoResul
   const res = await fetch(url);
   if (!res.ok) throw new Error(`Place search failed (${res.status})`);
   const json = (await res.json()) as { display_name: string; lat: string; lon: string }[];
-  return json.map((r) => ({ name: r.display_name.split(",")[0], lat: Number(r.lat), lng: Number(r.lon) }));
+  return json.map((r) => ({ name: r.display_name.split(",")[0] ?? r.display_name, lat: Number(r.lat), lng: Number(r.lon) }));
 }

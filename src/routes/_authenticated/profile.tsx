@@ -35,7 +35,7 @@ function Profile() {
   async function save(e: React.FormEvent) {
     e.preventDefault();
     const { error } = await supabase.from("profiles").update({ display_name: name, avatar_url: avatar || null }).eq("id", userId);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     qc.invalidateQueries({ queryKey: ["profiles"] });
     toast.success("Profile saved");
   }

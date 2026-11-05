@@ -267,7 +267,7 @@ function AddNote({ trip }: { trip: Trip }) {
       trip_id: trip.id, body, author_id: userId, stop_id: stop || null,
       happened_at: when ? new Date(when).toISOString() : null,
     });
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     setBody("");
     await qc.invalidateQueries({ queryKey: ["trips"] });
   }
@@ -290,7 +290,7 @@ function DeleteMedia({ id, path }: { id: string; path: string }) {
       onClick={async () => {
         if (!confirm("Remove this item?")) return;
         const { error } = await supabase.from("trip_media").delete().eq("id", id);
-        if (error) return toast.error(error.message);
+        if (error) { toast.error(error.message); return; }
         await supabase.storage.from("trip-media").remove([path]);
         qc.invalidateQueries({ queryKey: ["trips"] });
       }}>

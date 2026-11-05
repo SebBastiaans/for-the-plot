@@ -42,15 +42,15 @@ export function TripForm({ userId, trip }: { userId: string; trip?: Trip }) {
     const next = [...stops];
     const j = i + d;
     if (j < 0 || j >= next.length) return;
-    [next[i], next[j]] = [next[j], next[i]];
+    [next[i], next[j]] = [next[j]!, next[i]!];
     setStops(next);
   }
 
   async function save(e: React.FormEvent) {
     e.preventDefault();
     const c = getCountry(country);
-    if (!c) return toast.error("Pick a country");
-    if (end < start) return toast.error("End date must be after start date");
+    if (!c) { toast.error("Pick a country"); return; }
+    if (end < start) { toast.error("End date must be after start date"); return; }
     setBusy(true);
     try {
       const row = { country_code: c.code, country_name: c.name, title, start_date: start, end_date: end, story: story || null };
@@ -89,7 +89,7 @@ export function TripForm({ userId, trip }: { userId: string; trip?: Trip }) {
   async function remove() {
     if (!trip || !confirm("Delete this trip?")) return;
     const { error } = await supabase.from("trips").delete().eq("id", trip.id);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     await qc.invalidateQueries({ queryKey: ["trips"] });
     navigate({ to: "/" });
   }

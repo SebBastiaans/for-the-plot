@@ -31,7 +31,7 @@ function Upcoming() {
     const { error } = joined
       ? await supabase.from("trip_members").delete().eq("trip_id", tripId).eq("user_id", userId)
       : await supabase.from("trip_members").insert({ trip_id: tripId, user_id: userId });
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     qc.invalidateQueries({ queryKey: ["trips"] });
   }
 
