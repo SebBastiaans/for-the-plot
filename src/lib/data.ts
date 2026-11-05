@@ -107,7 +107,7 @@ export async function uploadMedia(userId: string, tripId: string, file: File) {
   return { path, type: file.type.startsWith("video") ? "video" : "photo" };
 }
 
-export type GeoResult = { name: string; lat: number; lng: number; kind?: string; region?: string };
+export type GeoResult = { name: string; lat: number; lng: number; kind?: string | undefined; region?: string | undefined };
 export async function geocode(q: string, countryCode?: string): Promise<GeoResult[]> {
   const url = new URL("https://nominatim.openstreetmap.org/search");
   url.searchParams.set("format", "json");
@@ -121,7 +121,7 @@ export async function geocode(q: string, countryCode?: string): Promise<GeoResul
   return json.map((r) => {
     const name = r.display_name.split(",")[0] ?? r.display_name;
     const a = r.address ?? {};
-    const parts = [a.municipality ?? a.city ?? a.town, a.county, a.state_district, a.province ?? a.state, a.region]
+    const parts = [a["municipality"] ?? a["city"] ?? a["town"], a["county"], a["state_district"], a["province"] ?? a["state"], a["region"]]
       .filter((p): p is string => !!p && p !== name);
     const region = [...new Set(parts)].slice(0, 3).join(", ");
     const raw = (r.addresstype ?? r.type ?? "").replace(/_/g, " ");
