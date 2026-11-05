@@ -1,3 +1,4 @@
+import { MAX_VIDEO_BYTES, compressImage, formatBytes } from "@/lib/media";
 import { queryOptions, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
@@ -99,7 +100,9 @@ export function useSignedUrls(paths: string[]) {
   });
 }
 
-export async function uploadMedia(userId: string, tripId: string, file: File) {
+export async function uploadMedia(userId: string, tripId: string, original: File) {
+  if (original.type.startsWith("video") && original.size > MAX_VIDEO_BYTES) throw new Error(`${original.name} is ${formatBytes(original.size)}; videos can be up to 200 MB`);
+  const file = await compressImage(original, 2560);
   const ext = file.name.split(".").pop() ?? "bin";
   const path = `${userId}/${tripId}/${crypto.randomUUID()}.${ext}`;
   const { error } = await supabase.storage.from(MEDIA_BUCKET).upload(path, file, { contentType: file.type });
@@ -147,7 +150,8 @@ export function useAvatarUrls(values: (string | null | undefined)[]) {
   return (v: string | null | undefined) => (!v ? undefined : /^https?:/.test(v) ? v : data[v]);
 }
 
-export async function uploadAvatar(userId: string, file: File) {
+export async function uploadAvatar(userId: string, original: File) {
+  const file = await compressImage(original, 512, { square: true, minBytes: 0 });
   const ext = file.name.split(".").pop() ?? "jpg";
   const path = `${userId}/${crypto.randomUUID()}.${ext}`;
   const { error } = await supabase.storage.from(AVATAR_BUCKET).upload(path, file, { contentType: file.type });
