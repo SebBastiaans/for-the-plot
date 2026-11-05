@@ -15,6 +15,13 @@
       "when": 1793880484385,
       "tag": "0001_groups",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793881815547,
+      "tag": "0002_multi_country_trips",
+      "breakpoints": true
     }
   ]
 }
