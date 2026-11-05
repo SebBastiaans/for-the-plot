@@ -8,6 +8,7 @@ import { COUNTRIES, flagEmoji, getCountry } from "@/lib/countries";
 import { stopDatesError } from "@/lib/stats";
 import { ME, geocode, profilesQuery, type GeoResult, type Trip } from "@/lib/data";
 import { Button } from "@/components/ui/button";
+import { StopDays } from "@/components/StopDays";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
