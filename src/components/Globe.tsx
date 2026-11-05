@@ -15,7 +15,9 @@ function readColors() {
     planned: v("--globe-planned", "#f5bb55"),
     stroke: v("--globe-stroke", "#e8ffe8"),
     ocean: v("--globe-ocean", "#1d3b5c"),
-    land: v("--globe-land", "#e8f0e6"),
+    land: v("--globe-land", "#cfe6bf"),
+    border: v("--globe-border", "#a9b9a0"),
+    label: v("--globe-label", "#2b3a2e"),
   };
 }
 
@@ -84,7 +86,7 @@ export default function Globe({
   }, [features]);
 
   const material = useMemo(
-    () => new THREE.MeshPhongMaterial({ color: colors.ocean, emissive: colors.ocean, emissiveIntensity: 0.35, shininess: 8 }),
+    () => new THREE.MeshPhongMaterial({ color: colors.ocean, emissive: colors.ocean, emissiveIntensity: 0.25, shininess: 4 }),
     [colors.ocean],
   );
 
@@ -103,6 +105,18 @@ export default function Globe({
     }
     return out;
   }, [features, statuses, colors]);
+
+  // country names at their centroid, only for larger countries to keep it clean
+  const labels = useMemo(() => {
+    return features.flatMap((f) => {
+      const g = f.geometry as { type: string; coordinates: number[][][] | number[][][][] };
+      const polys = (g.type === "Polygon" ? [g.coordinates] : g.coordinates) as number[][][][];
+      const ring = polys.reduce((a, b) => (b[0]!.length > a[0]!.length ? b : a))[0]!;
+      const lng = ring.reduce((a, p) => a + p[0]!, 0) / ring.length;
+      const lat = ring.reduce((a, p) => a + p[1]!, 0) / ring.length;
+      return [{ lat, lng, name: f.properties.NAME }];
+    });
+  }, [features]);
 
   const statusColor = (code: string) => {
     const s = statuses[code];
@@ -123,12 +137,13 @@ export default function Globe({
         backgroundColor="rgba(0,0,0,0)"
         globeMaterial={material}
         showAtmosphere={false}
-        hexPolygonsData={features}
-        hexPolygonResolution={3}
-        hexPolygonMargin={0.4}
-        hexPolygonUseDots
-        hexPolygonAltitude={0.004}
-        hexPolygonColor={() => colors.land}
+        labelsData={labels}
+        labelText={(l: object) => (l as { name: string }).name}
+        labelSize={0.6}
+        labelDotRadius={0}
+        labelAltitude={0.028}
+        labelResolution={2}
+        labelColor={() => colors.label}
         ringsData={rings}
         ringColor={(r: object) => (t: number) => alpha((r as { color: string }).color, 1 - t)}
         ringMaxRadius={4}
@@ -138,21 +153,21 @@ export default function Globe({
         polygonsTransitionDuration={200}
         polygonAltitude={(f: object) => {
           const code = (f as Feature).properties.ISO_A2;
-          return code === hover ? 0.03 : statuses[code] ? 0.012 : 0.004;
+          return code === hover ? 0.02 : statuses[code] ? 0.01 : 0.006;
         }}
         polygonCapColor={(f: object) => {
           const code = (f as Feature).properties.ISO_A2;
           const c = statusColor(code);
-          if (!c) return code === hover ? "rgba(255,255,255,0.22)" : "rgba(0,0,0,0)";
-          return alpha(c, code === hover ? 0.95 : 0.8);
+          if (!c) return code === hover ? alpha(colors.visited, 0.35) : colors.land;
+          return alpha(c, code === hover ? 1 : 0.85);
         }}
         polygonSideColor={(f: object) => {
           const c = statusColor((f as Feature).properties.ISO_A2);
-          return c ? alpha(c, 0.35) : "rgba(0,0,0,0)";
+          return c ? alpha(c, 0.5) : colors.land;
         }}
         polygonStrokeColor={(f: object) => {
           const code = (f as Feature).properties.ISO_A2;
-          return statuses[code] ? colors.stroke : "rgba(0,0,0,0)";
+          return statuses[code] ? colors.stroke : colors.border;
         }}
         polygonLabel={(f: object) => {
           const p = (f as Feature).properties;

@@ -85,8 +85,10 @@
   --globe-visited: #4fbf63;
   --globe-planned: #f2a93b;
   --globe-stroke: #d9ffd9;
-  --globe-ocean: #cfe3f2;
-  --globe-land: #3d5a46;
+  --globe-ocean: #7cc0ef;
+  --globe-land: #cfe6bf;
+  --globe-border: #a9b9a0;
+  --globe-label: #2b3a2e;
   --map-line: #2f9e47;
   --map-style: light;
 
@@ -137,8 +139,10 @@
     --globe-visited: #7ee08a;
     --globe-planned: #f5bb55;
     --globe-stroke: #e8ffe8;
-    --globe-ocean: #14263a;
-    --globe-land: #e6efe4;
+    --globe-ocean: #1d4a72;
+    --globe-land: #3f5e45;
+    --globe-border: #6f8a73;
+    --globe-label: #eef5ec;
     --map-line: #7ee08a;
     --map-style: dark;
     --gradient-hero: radial-gradient(ellipse at 50% 85%, oklch(0.25 0.03 240) 0%, oklch(0.15 0 0) 65%);
