@@ -1,4 +1,5 @@
 import { useGroup, NeedGroup } from "@/lib/group";
+import { ErrorState, LoadingState } from "@/components/States";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -26,7 +27,7 @@ function Upcoming() {
   const { groupId, loading } = useGroup();
   const profiles = useProfilesMap(groupId);
   const today = todayISO();
-  const { data, isLoading } = useQuery(tripsQuery(groupId));
+  const { data, isLoading, error, refetch } = useQuery(tripsQuery(groupId));
   const trips = (data ?? []).filter((t) => isUpcoming(t, today)).sort((a, b) => a.start_date.localeCompare(b.start_date));
 
   async function toggle(tripId: string, joined: boolean) {
@@ -41,7 +42,7 @@ function Upcoming() {
     <main className="mx-auto max-w-4xl px-4 pb-28 pt-20 sm:px-5 sm:pt-28 md:pb-24">
       <p className="eyebrow">Next up</p>
       <h1 className="mt-2 text-5xl">Upcoming trips</h1>
-      {!loading && !groupId ? <div className="mt-10"><NeedGroup /></div> : isLoading ? <p className="mt-8 text-muted-foreground">Loading…</p> : trips.length === 0 ? (
+      {!loading && !groupId ? <div className="mt-10"><NeedGroup /></div> : isLoading ? <LoadingState label="Loading upcoming trips…" /> : error ? <ErrorState error={error} onRetry={() => refetch()} /> : trips.length === 0 ? (
         <p className="mt-8 text-muted-foreground">
           Nothing planned yet. <Link to="/trips/new" className="text-planned underline">Plan a trip</Link> with a future start date.
         </p>

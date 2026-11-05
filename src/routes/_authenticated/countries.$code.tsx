@@ -8,7 +8,7 @@ import { MediaPicker } from "@/components/MediaPicker";
 import { ErrorState, LoadingState, errText } from "@/components/States";
 import { supabase } from "@/integrations/supabase/client";
 import { flagEmoji, getCountry } from "@/lib/countries";
-import { participants, tripsQuery, uploadMedia, useProfilesMap, useAvatarUrls, useSignedUrls, type Trip } from "@/lib/data";
+import { participants, tripsQuery, addMediaToTrip, useProfilesMap, useAvatarUrls, useSignedUrls, type Trip } from "@/lib/data";
 import { isUpcoming, todayISO, tripDays } from "@/lib/stats";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -41,7 +41,7 @@ function CountryPage() {
   const { code } = Route.useParams();
   const country = getCountry(code);
   const { groupId } = useGroup();
-  const { data, isLoading } = useQuery(tripsQuery(groupId));
+  const { data, isLoading, error, refetch } = useQuery(tripsQuery(groupId));
   const trips = (data ?? []).filter((t) => t.countries.some((c) => c.code === code.toUpperCase()));
 
   return (
@@ -55,7 +55,9 @@ function CountryPage() {
         </div>
       </div>
       {isLoading ? (
-        <p className="mt-10 text-muted-foreground">Loading…</p>
+        <LoadingState label="Loading trips…" />
+      ) : error ? (
+        <ErrorState error={error} label="Couldn't load the trips." onRetry={() => refetch()} />
       ) : trips.length === 0 ? (
         <p className="mt-10 text-muted-foreground">
           Nobody has logged a trip here yet. <Link to="/trips/new" className="text-sage underline">Add one</Link>.
