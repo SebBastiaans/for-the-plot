@@ -102,7 +102,12 @@
   --map-style: light;
 
   --gradient-hero: radial-gradient(ellipse at 50% 85%, oklch(0.93 0.04 230) 0%, oklch(0.985 0.004 120) 65%);
-  --gradient-fade: linear-gradient(to bottom, transparent 0%, oklch(0.985 0.004 120 / 85%) 35%, oklch(0.985 0.004 120) 60%);
+  --gradient-fade: linear-gradient(
+    to bottom,
+    transparent 0%,
+    oklch(0.985 0.004 120 / 85%) 35%,
+    oklch(0.985 0.004 120) 60%
+  );
   --shadow-glow: 0 0 40px -10px color-mix(in oklab, var(--sage) 50%, transparent);
   --shadow-sticker: 0 4px 0 0 color-mix(in oklab, var(--foreground) 12%, transparent);
 
@@ -174,7 +179,9 @@
     color: var(--color-foreground);
     font-family: var(--font-sans);
   }
-  h1, h2, h3 {
+  h1,
+  h2,
+  h3 {
     font-family: var(--font-display);
     font-weight: 800;
     letter-spacing: -0.03em;
@@ -231,9 +238,9 @@
   }
 }
 
-// @utility shadow-sticker {
-//   box-shadow: var(--shadow-sticker);
-// }
+@utility shadow-sticker {
+  box-shadow: var(--shadow-sticker);
+}
 
 @utility pb-safe {
   padding-bottom: calc(env(safe-area-inset-bottom) + 0.5rem);
