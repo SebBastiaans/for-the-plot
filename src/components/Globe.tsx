@@ -164,8 +164,8 @@ export default function Globe({
         polygonCapColor={(f: object) => {
           const code = (f as Feature).properties.ISO_A2;
           const c = statusColor(code);
-          if (!c) return code === hover ? alpha(colors.visited, 0.35) : colors.land;
-          return alpha(c, code === hover ? 1 : 0.85);
+          if (!c) return code === hover ? alpha(colors.visited, 0.3) : "rgba(0,0,0,0)";
+          return alpha(c, code === hover ? 0.85 : 0.6);
         }}
         polygonSideColor={(f: object) => {
           const c = statusColor((f as Feature).properties.ISO_A2);
