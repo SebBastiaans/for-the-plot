@@ -50,6 +50,13 @@
       "when": 1793890699687,
       "tag": "0006_create_feedback",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1793890849772,
+      "tag": "0007_scope_profiles_avatars",
+      "breakpoints": true
     }
   ]
 }
