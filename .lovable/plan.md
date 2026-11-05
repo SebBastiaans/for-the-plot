@@ -1,10 +1,11 @@
-# Sharper globe, no hover outline
+# Sharper, cartoon-style globe, no hover outline
 
 ## What changes
-1. **Sharper landscape**: regenerate the light and dark globe images at 8192x4096 (now 2048x1024, which looks blurry when stretched over a big globe), from the higher-detail Natural Earth source, keeping the same flat, simple colors. Enable texture smoothing (anisotropic filtering + mipmaps) and render at the device's full pixel density so it's crisp on phones/retina.
-2. **No hover border**: hovering a country no longer raises it or draws a lighter outline/tint over it. Visited and planned countries keep their colors; the cursor still shows the country can be clicked.
+1. **Cartoon landscape instead of a detailed photo**: redraw the globe's land as a few smooth, flat color zones (sand for deserts, soft green for forests and grassland, light brown for mountains, white for ice) with clean rounded edges, like an illustrated map. Because it's only a handful of flat colors, it stays sharp at a larger size while the file stays small (target: under ~400 KB per light/dark version), so it loads fast on phones.
+2. **Crisp rendering**: smooth texture filtering and full screen sharpness on phones/retina screens, so nothing looks pixelated.
+3. **No hover border**: hovering a country no longer lifts it or draws a lighter outline or tint. Visited and planned countries keep their colors; tapping a country still opens it.
 
 ## Technical details
-- Rebuild `public/textures/globe-{light,dark}.jpg` from HYP_HR_SR_W (or HYP_50M upscaled with Lanczos if download fails), JPEG q≈85 to keep size reasonable.
-- `Globe.tsx`: `map.anisotropy = renderer.capabilities.getMaxAnisotropy()`, `colorSpace = SRGBColorSpace`, `renderer.setPixelRatio(Math.min(devicePixelRatio, 2))`.
+- Rebuild `public/textures/globe-{light,dark}` at 4096x2048 from Natural Earth HYP_50M: classify into ~5 zones, blur + threshold for smooth edges (no speckle), flat ocean; save as WebP (palette-like content compresses very well), keep JPG fallback only if WebP fails.
+- `Globe.tsx`: load `.webp`, `colorSpace = SRGBColorSpace`, `anisotropy = maxAnisotropy`, mipmaps on, `renderer.setPixelRatio(Math.min(devicePixelRatio, 2))`.
 - Remove `hover` from polygon altitude and cap color; keep hover state only for cursor/click.
