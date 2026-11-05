@@ -99,7 +99,7 @@ export default function Globe({
             : "Not visited yet";
           return `<div style="font-family:Manrope,sans-serif;background:rgba(16,38,27,.92);border:1px solid rgba(160,196,157,.35);padding:6px 10px;border-radius:8px;color:#f1efe2"><b>${p.NAME}</b><br/><span style="opacity:.7;font-size:12px">${sub}</span></div>`;
         }}
-        onHexPolygonHover={(f: object) => setHover(f ? (f as Feature).properties.ISO_A2 : null)}
+        onHexPolygonHover={(f: object | null) => setHover(f ? (f as Feature).properties.ISO_A2 : null)}
         onHexPolygonClick={(f: object) => {
           const code = (f as Feature).properties.ISO_A2;
           if (statuses[code]) onCountryClick(code);
