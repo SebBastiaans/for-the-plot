@@ -13,6 +13,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AuthProvider } from "@/lib/auth";
+import { GroupProvider } from "@/lib/group";
 import { SiteNav } from "@/components/SiteNav";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -117,9 +118,11 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <SiteNav />
-        <Outlet />
-        <Toaster />
+        <GroupProvider>
+          <SiteNav />
+          <Outlet />
+          <Toaster />
+        </GroupProvider>
       </AuthProvider>
     </QueryClientProvider>
   );

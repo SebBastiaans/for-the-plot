@@ -1,4 +1,4 @@
-import { useGroup, NeedGroup } from "@/lib/group";
+import { useGroup } from "@/lib/group";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { TripForm } from "@/components/TripForm";
