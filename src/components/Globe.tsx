@@ -90,7 +90,7 @@ export default function Globe({
     () => {
       // simple landscape map (deserts, forests, ice, mountain shading) under the country shapes
       const dark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      const map = new THREE.TextureLoader().load(`/textures/globe-${dark ? "dark" : "light"}.webp`);
+      const map = new THREE.TextureLoader().load(`/textures/globe-${dark ? "dark" : "light"}.webp?v=3`);
       map.colorSpace = THREE.SRGBColorSpace;
       map.anisotropy = 16;
       map.generateMipmaps = true;
