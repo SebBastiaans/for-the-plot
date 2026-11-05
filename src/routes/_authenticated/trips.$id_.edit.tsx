@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { TripForm } from "@/components/TripForm";
 import { ME, tripsQuery } from "@/lib/data";
 
-export const Route = createFileRoute("/_authenticated/trips/$id/edit")({
+export const Route = createFileRoute("/_authenticated/trips/$id_/edit")({
   head: () => ({
     meta: [
       { title: "Edit trip — Crossed Off" },
