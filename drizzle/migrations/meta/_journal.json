@@ -29,6 +29,13 @@
       "when": 1793884592697,
       "tag": "0003_personal_trips_and_group_rules",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793884606658,
+      "tag": "0004_trips_read_own_direct",
+      "breakpoints": true
     }
   ]
 }
