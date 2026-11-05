@@ -1,10 +1,11 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { useQueryClient } from "@tanstack/react-query";
-import { CalendarClock, Globe2, Plus, Trophy, UserRound, Users } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Bell, CalendarClock, Globe2, Plus, Trophy, UserRound, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { useGroup } from "@/lib/group";
+import { invitesQuery } from "@/lib/data";
 
 const links = [
   { to: "/", label: "Globe", icon: Globe2 },
@@ -27,6 +28,17 @@ export function SiteNav() {
   }
 
   const signedIn = ready && !!session;
+  const { data: invites = [] } = useQuery({ ...invitesQuery(session?.user.id), enabled: signedIn });
+  const bell = (
+    <Button asChild size="icon" variant="ghost" aria-label={`Inbox${invites.length ? `, ${invites.length} new` : ""}`} className="relative">
+      <Link to="/inbox">
+        <Bell className="h-5 w-5" />
+        {invites.length > 0 && (
+          <span className="absolute -right-0.5 -top-0.5 grid h-5 min-w-5 place-items-center rounded-full bg-primary px-1 text-[11px] font-bold text-primary-foreground">{invites.length}</span>
+        )}
+      </Link>
+    </Button>
+  );
 
   return (
     <>
@@ -54,19 +66,21 @@ export function SiteNav() {
           <div className="ml-auto flex min-w-0 items-center gap-2">
             {signedIn ? (
               <>
-                {groups.length > 0 && (
+                {(
                   <select
                     aria-label="Group"
                     value={groupId ?? ""}
                     onChange={(e) => setGroupId(e.target.value)}
                     className="h-9 min-w-0 max-w-36 truncate rounded-full border border-input bg-background px-3 text-sm font-bold"
                   >
+                    <option value="me">Just me</option>
                     {groups.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
                   </select>
                 )}
                 <Button asChild size="sm" className="hidden md:inline-flex">
                   <Link to="/trips/new"><Plus className="h-4 w-4" /> Add trip</Link>
                 </Button>
+                {bell}
                 <Button asChild size="icon" variant="ghost" aria-label="Profile">
                   <Link to="/profile"><UserRound className="h-5 w-5" /></Link>
                 </Button>

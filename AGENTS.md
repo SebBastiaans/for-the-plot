@@ -39,3 +39,5 @@ use the editor.
 - A trip's countries live in `trip_countries` (exposed as `trip.countries`); `trips.country_code/name` are deprecated. Stops carry optional `country_code`/`arrived_on`/`left_on`, validated by `stopDatesError`. Why: trips span several countries.
 - Light/dark follows the device via `@media (prefers-color-scheme)` tokens; focus is one global `:focus-visible` rule (no per-component focus utilities). Why: consistent theming and keyboard focus.
 - Avatars live in the private `avatars` bucket under `<userId>/…`; `profiles.avatar_url` stores the path, resolved with `useAvatarUrls`.
+
+- Trips belong to their creator (`trips.group_id` deprecated). Tagged people are `trip_members` rows: an insert trigger sets status (pending, or accepted for the creator or someone joining themselves), and invitees answer through `respond_to_trip`. A group shows the trips that pass its rule (`trip_counts_for_group`, mirrored by `qualifiesForGroup`), read through `group_trip_ids`. The "me" scope shows your own trips. Only participants (`is_trip_participant`) can add media and notes. Why: trips are personal and groups are derived from them.

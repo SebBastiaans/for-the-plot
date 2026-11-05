@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { TripForm } from "@/components/TripForm";
-import { NeedGroup, useGroup } from "@/lib/group";
+import { useGroup } from "@/lib/group";
 
 export const Route = createFileRoute("/_authenticated/trips/new")({
   head: () => ({
@@ -16,13 +16,13 @@ export const Route = createFileRoute("/_authenticated/trips/new")({
 
 function NewTrip() {
   const { userId } = Route.useRouteContext();
-  const { groupId, group, loading } = useGroup();
+  const { loading } = useGroup();
   return (
     <main className="mx-auto max-w-2xl px-4 pb-28 pt-20 sm:px-5 sm:pt-28 md:pb-24">
       <p className="eyebrow">New entry</p>
       <h1 className="mt-2 text-4xl">Add a trip</h1>
-      {group && <p className="mb-8 mt-1 text-muted-foreground">to {group.name}</p>}
-      {loading ? null : groupId ? <TripForm userId={userId} /> : <NeedGroup />}
+      <p className="mb-8 mt-1 text-muted-foreground">Saved to your account. Friends you tag get an invite to confirm.</p>
+      {loading ? null : <TripForm userId={userId} />}
     </main>
   );
 }

@@ -101,3 +101,12 @@ export function stopDatesError(
   if (a && l && l < a) return "Departure must be after arrival";
   return null;
 }
+
+export type GroupRule = { rule_type: string; rule_value: number };
+/** Does a trip count for a group? `present` = group members who took part, `size` = group size. Mirrors SQL trip_counts_for_group. */
+export function qualifiesForGroup(rule: GroupRule, present: number, size: number): boolean {
+  if (present <= 0 || size <= 0) return false;
+  if (rule.rule_type === "all") return present >= size;
+  if (rule.rule_type === "count") return present >= Math.min(rule.rule_value, size);
+  return present * 100 >= rule.rule_value * size;
+}

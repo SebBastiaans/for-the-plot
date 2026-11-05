@@ -6,7 +6,7 @@ import { CalendarDays, MapPin, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { flagEmoji, getCountry } from "@/lib/countries";
-import { tripsQuery, uploadMedia, useProfilesMap, useAvatarUrls, useSignedUrls, type Trip } from "@/lib/data";
+import { participants, tripsQuery, uploadMedia, useProfilesMap, useAvatarUrls, useSignedUrls, type Trip } from "@/lib/data";
 import { isUpcoming, todayISO, tripDays } from "@/lib/stats";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -129,12 +129,13 @@ function TripSection({ trip: full, code }: { trip: Trip; code: string }) {
           {trip.trip_members.map((m) => {
             const p = profiles[m.user_id];
             return (
-              <div key={m.user_id} className="flex items-center gap-2 rounded-full border border-border py-1 pl-1 pr-3 text-sm">
+              <div key={m.user_id} className={`flex items-center gap-2 rounded-full border border-border py-1 pl-1 pr-3 text-sm ${m.status === "pending" ? "opacity-60" : ""}`}>
                 <Avatar className="h-7 w-7">
                   {avatarUrl(p?.avatar_url) && <AvatarImage src={avatarUrl(p?.avatar_url)} />}
                   <AvatarFallback className="bg-accent text-xs">{p?.display_name?.[0] ?? "?"}</AvatarFallback>
                 </Avatar>
                 {p?.display_name ?? "Friend"}
+                {m.status === "pending" && <span className="text-xs text-muted-foreground">pending</span>}
               </div>
             );
           })}
@@ -194,7 +195,7 @@ function TripSection({ trip: full, code }: { trip: Trip; code: string }) {
             })}
           </div>
         )}
-        <AddMedia trip={trip} />
+        {participants(trip).includes(userId) && <AddMedia trip={trip} />}
       </section>
 
       <section className="mt-10">
@@ -211,7 +212,7 @@ function TripSection({ trip: full, code }: { trip: Trip; code: string }) {
           ))}
           {notes.length === 0 && <li className="text-sm text-muted-foreground">No notes yet.</li>}
         </ol>
-        <AddNote trip={trip} />
+        {participants(trip).includes(userId) && <AddNote trip={trip} />}
       </section>
     </article>
   );

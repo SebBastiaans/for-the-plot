@@ -40,7 +40,7 @@ function GroupsPage() {
     <main className="mx-auto max-w-3xl px-4 pb-28 pt-20 sm:px-5 sm:pt-28 md:pb-24">
       <p className="eyebrow">Your crews</p>
       <h1 className="mt-2 text-5xl">Groups</h1>
-      <p className="mt-2 text-muted-foreground">Each group has its own globe, trips and rankings.</p>
+      <p className="mt-2 text-muted-foreground">Each group shows the trips its members went on together. The group rule decides how many members need to be on a trip.</p>
 
       <form onSubmit={create} className="mt-8 flex gap-2">
         <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="New group name, e.g. Uni friends" required />
@@ -102,6 +102,8 @@ function GroupCard({ group, active, onSelect }: { group: Group; active: boolean;
         )}
       </div>
 
+      <RuleEditor group={group} owner={owner} size={members.length} />
+
       <div className="mt-4">
         <p className="eyebrow mb-2">Invite link</p>
         <div className="flex gap-2">
@@ -126,5 +128,47 @@ function GroupCard({ group, active, onSelect }: { group: Group; active: boolean;
         ))}
       </ul>
     </section>
+  );
+}
+
+function RuleEditor({ group, owner, size }: { group: Group; owner: boolean; size: number }) {
+  const qc = useQueryClient();
+  const [type, setType] = useState(group.rule_type);
+  const [value, setValue] = useState(group.rule_value);
+  const summary = group.rule_type === "all" ? "Everyone in the group was on the trip"
+    : group.rule_type === "count" ? `At least ${group.rule_value} of ${size} members were on the trip`
+    : `At least ${group.rule_value}% of the group was on the trip`;
+
+  async function save() {
+    const v = Math.max(1, Math.round(type === "percent" ? Math.min(100, value) : value));
+    const { error } = await supabase.from("groups").update({ rule_type: type, rule_value: v }).eq("id", group.id);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Group rule saved");
+    qc.invalidateQueries({ queryKey: ["groups"] });
+    qc.invalidateQueries({ queryKey: ["trips"] });
+  }
+
+  return (
+    <div className="mt-4">
+      <p className="eyebrow mb-2">Trip shows here when</p>
+      {!owner ? <p className="text-sm">{summary}</p> : (
+        <div className="flex flex-wrap items-center gap-2">
+          <select aria-label="Group rule" value={type} onChange={(e) => setType(e.target.value)}
+            className="h-11 rounded-xl border border-input bg-background px-3 text-sm">
+            <option value="all">Everyone was there</option>
+            <option value="count">At least a number of people</option>
+            <option value="percent">At least a percentage</option>
+          </select>
+          {type !== "all" && (
+            <label className="flex items-center gap-2 text-sm">
+              <Input type="number" min={1} max={type === "percent" ? 100 : undefined} value={value}
+                onChange={(e) => setValue(Number(e.target.value))} className="h-11 w-20" aria-label={type === "percent" ? "Percentage" : "Number of people"} />
+              {type === "percent" ? "%" : `of ${size}`}
+            </label>
+          )}
+          <Button size="sm" className="h-11" onClick={save}>Save rule</Button>
+        </div>
+      )}
+    </div>
   );
 }

@@ -54,6 +54,8 @@ export type Database = {
           id: string
           invite_code: string
           name: string
+          rule_type: string
+          rule_value: number
         }
         Insert: {
           created_at?: string
@@ -61,6 +63,8 @@ export type Database = {
           id?: string
           invite_code?: string
           name: string
+          rule_type?: string
+          rule_value?: number
         }
         Update: {
           created_at?: string
@@ -68,6 +72,8 @@ export type Database = {
           id?: string
           invite_code?: string
           name?: string
+          rule_type?: string
+          rule_value?: number
         }
         Relationships: [
           {
@@ -189,14 +195,20 @@ export type Database = {
       }
       trip_members: {
         Row: {
+          invited_at: string
+          status: string
           trip_id: string
           user_id: string
         }
         Insert: {
+          invited_at?: string
+          status?: string
           trip_id: string
           user_id: string
         }
         Update: {
+          invited_at?: string
+          status?: string
           trip_id?: string
           user_id?: string
         }
@@ -375,10 +387,21 @@ export type Database = {
       can_see_trip: { Args: { _trip: string }; Returns: boolean }
       create_group: { Args: { _name: string }; Returns: string }
       group_name_for_invite: { Args: { _code: string }; Returns: string }
+      group_trip_ids: { Args: { _group: string }; Returns: string[] }
       is_group_member: { Args: { _group: string }; Returns: boolean }
       is_group_owner: { Args: { _group: string }; Returns: boolean }
       is_trip_owner: { Args: { _trip: string }; Returns: boolean }
+      is_trip_participant: { Args: { _trip: string }; Returns: boolean }
       join_group: { Args: { _code: string }; Returns: string }
+      respond_to_trip: {
+        Args: { _accept: boolean; _trip: string }
+        Returns: undefined
+      }
+      shares_group_with: { Args: { _user: string }; Returns: boolean }
+      trip_counts_for_group: {
+        Args: { _group: string; _trip: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never

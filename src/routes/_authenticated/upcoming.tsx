@@ -3,7 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { tripsQuery, useProfilesMap } from "@/lib/data";
+import { participants, tripsQuery, useProfilesMap } from "@/lib/data";
 import { flagEmoji } from "@/lib/countries";
 import { isUpcoming, todayISO, tripDays } from "@/lib/stats";
 import { Button } from "@/components/ui/button";
@@ -49,7 +49,8 @@ function Upcoming() {
         <ul className="mt-10 space-y-4">
           {trips.map((t) => {
             const days = tripDays(today, t.start_date) - 1;
-            const joined = t.trip_members.some((m) => m.user_id === userId);
+            const joined = participants(t).includes(userId);
+            const own = t.created_by === userId;
             return (
               <li key={t.id} className="flex flex-wrap items-center gap-4 rounded-3xl border-2 border-border bg-card p-4 shadow-sticker sm:gap-5 sm:p-5">
                 <div className="w-24 text-center">
@@ -65,12 +66,14 @@ function Upcoming() {
                     {t.trip_stops.length > 0 && ` · ${t.trip_stops.map((s) => s.name).join(" → ")}`}
                   </p>
                   <p className="mt-1 text-sm">
-                    Coming: {t.trip_members.map((m) => profiles[m.user_id]?.display_name).filter(Boolean).join(", ") || "nobody yet"}
+                    Coming: {participants(t).map((id) => profiles[id]?.display_name).filter(Boolean).join(", ") || "nobody yet"}
                   </p>
                 </div>
-                <Button variant={joined ? "outline" : "default"} size="sm" onClick={() => toggle(t.id, joined)}>
-                  {joined ? "Leave" : "I'm in"}
-                </Button>
+                {!own && (
+                  <Button variant={joined ? "outline" : "default"} size="sm" onClick={() => toggle(t.id, joined)}>
+                    {joined ? "Leave" : "I'm in"}
+                  </Button>
+                )}
               </li>
             );
           })}

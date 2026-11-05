@@ -1,7 +1,7 @@
 import { useGroup, NeedGroup } from "@/lib/group";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { profilesQuery, tripsQuery } from "@/lib/data";
+import { participants, profilesQuery, tripsQuery } from "@/lib/data";
 import { computeStats, todayISO, type Ranked } from "@/lib/stats";
 
 export const Route = createFileRoute("/_authenticated/rankings")({
@@ -49,7 +49,7 @@ function Rankings() {
     (trips.data ?? []).map((t) => ({
       ...t,
       stops: t.trip_stops,
-      members: t.trip_members.map((m) => m.user_id),
+      members: participants(t),
       media: t.trip_media,
     })),
     names,
@@ -60,7 +60,7 @@ function Rankings() {
     <main className="mx-auto max-w-6xl px-4 pb-28 pt-20 sm:px-5 sm:pt-28 md:pb-24">
       <p className="eyebrow">Leaderboards</p>
       <h1 className="mt-2 text-5xl">Rankings & stats</h1>
-      {group && <p className="mt-2 text-muted-foreground">{group.name}</p>}
+      <p className="mt-2 text-muted-foreground">{group ? group.name : "Just me"}</p>
       {!loading && !groupId && <div className="mt-10"><NeedGroup /></div>}
       <div className="mt-8 grid gap-4 sm:grid-cols-3">
         {[["Countries", s.totalCountries], ["Trips", s.totalTrips], ["Continents", s.totalContinents]].map(([l, v]) => (

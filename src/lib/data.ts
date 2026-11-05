@@ -10,21 +10,41 @@ export type TripCountry = { code: string; name: string };
 export type Trip = Tables<"trips"> & {
   countries: TripCountry[];
   trip_stops: Stop[];
-  trip_members: { user_id: string }[];
+  trip_members: { user_id: string; status: string }[];
   trip_media: Media[];
   trip_notes: Note[];
 };
 
 export const MEDIA_BUCKET = "trip-media";
 
+export const ME = "me";
+
+/** Trips for a scope: a group id (trips that meet the group's rule) or "me" (my own and accepted trips). */
 export const tripsQuery = (groupId: string | null) => queryOptions({
   queryKey: ["trips", groupId],
   enabled: !!groupId,
   queryFn: async (): Promise<Trip[]> => {
+    let ids: string[];
+    if (groupId === ME) {
+      const { data: u } = await supabase.auth.getUser();
+      const uid = u.user?.id ?? "";
+      const [own, mem] = await Promise.all([
+        supabase.from("trips").select("id").eq("created_by", uid),
+        supabase.from("trip_members").select("trip_id").eq("user_id", uid).eq("status", "accepted"),
+      ]);
+      if (own.error) throw own.error;
+      if (mem.error) throw mem.error;
+      ids = [...new Set([...(own.data ?? []).map((r) => r.id), ...(mem.data ?? []).map((r) => r.trip_id)])];
+    } else {
+      const { data: rows, error: e } = await supabase.rpc("group_trip_ids", { _group: groupId! });
+      if (e) throw e;
+      ids = (rows ?? []) as string[];
+    }
+    if (!ids.length) return [];
     const { data, error } = await supabase
       .from("trips")
-      .select("*, trip_stops(*), trip_members(user_id), trip_media(*), trip_notes(*), trip_countries(*)")
-      .eq("group_id", groupId!)
+      .select("*, trip_stops(*), trip_members(user_id, status), trip_media(*), trip_notes(*), trip_countries(*)")
+      .in("id", ids)
       .order("start_date", { ascending: false });
     if (error) throw error;
     return (data ?? []).map((t) => ({
@@ -37,16 +57,24 @@ export const tripsQuery = (groupId: string | null) => queryOptions({
   },
 });
 
-/** Profiles of the members of a group. */
+/** Profiles of the members of a group, or for "me": everyone who shares any group with me (and me). */
 export const profilesQuery = (groupId: string | null) => queryOptions({
   queryKey: ["profiles", groupId],
   enabled: !!groupId,
   queryFn: async (): Promise<Profile[]> => {
-    const { data, error } = await supabase.from("group_members").select("profiles(*)").eq("group_id", groupId!);
+    let q = supabase.from("group_members").select("profiles(*)");
+    if (groupId !== ME) q = q.eq("group_id", groupId!);
+    const { data, error } = await q;
     if (error) throw error;
-    return (data ?? [])
-      .map((r) => r.profiles as Profile | null)
-      .filter((p): p is Profile => !!p)
+    const list = (data ?? []).map((r) => r.profiles as Profile | null).filter((p): p is Profile => !!p);
+    if (groupId === ME) {
+      const { data: u } = await supabase.auth.getUser();
+      if (u.user && !list.some((p) => p.id === u.user!.id)) {
+        const { data: me } = await supabase.from("profiles").select("*").eq("id", u.user.id).maybeSingle();
+        if (me) list.push(me);
+      }
+    }
+    return [...new Map(list.map((p) => [p.id, p])).values()]
       .sort((a, b) => a.display_name.localeCompare(b.display_name));
   },
 });
@@ -117,3 +145,23 @@ export async function uploadAvatar(userId: string, file: File) {
   if (error) throw error;
   return path;
 }
+
+/** People who took part: the creator plus everyone who accepted. */
+export function participants(t: { created_by: string; trip_members: { user_id: string; status: string }[] }) {
+  return [...new Set([t.created_by, ...t.trip_members.filter((m) => m.status === "accepted").map((m) => m.user_id)])];
+}
+
+export type Invite = { trip_id: string; invited_at: string; trips: { title: string; start_date: string; end_date: string; created_by: string } | null };
+export const invitesQuery = (userId: string | undefined) => queryOptions({
+  queryKey: ["invites", userId],
+  enabled: !!userId,
+  refetchInterval: 60_000,
+  refetchOnWindowFocus: true,
+  queryFn: async (): Promise<Invite[]> => {
+    const { data, error } = await supabase.from("trip_members")
+      .select("trip_id, invited_at, trips(title, start_date, end_date, created_by)")
+      .eq("user_id", userId!).eq("status", "pending").order("invited_at", { ascending: false });
+    if (error) throw error;
+    return (data ?? []) as Invite[];
+  },
+});

@@ -22,6 +22,27 @@
       "when": 1793881815547,
       "tag": "0002_multi_country_trips",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1793884592697,
+      "tag": "0003_personal_trips_and_group_rules",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793884606658,
+      "tag": "0004_trips_read_own_direct",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793884715099,
+      "tag": "0005_only_participants_add_media_notes",
+      "breakpoints": true
     }
   ]
 }

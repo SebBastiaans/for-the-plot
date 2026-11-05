@@ -6,21 +6,19 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { COUNTRIES, flagEmoji, getCountry } from "@/lib/countries";
 import { stopDatesError } from "@/lib/stats";
-import { geocode, profilesQuery, type GeoResult, type Trip } from "@/lib/data";
+import { ME, geocode, profilesQuery, type GeoResult, type Trip } from "@/lib/data";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useGroup } from "@/lib/group";
 
 type DraftStop = { id?: string; name: string; lat: number; lng: number; country_code?: string | null; arrived_on?: string | null; left_on?: string | null };
 
 export function TripForm({ userId, trip }: { userId: string; trip?: Trip }) {
   const navigate = useNavigate();
   const qc = useQueryClient();
-  const { groupId } = useGroup();
-  const { data: profiles = [] } = useQuery(profilesQuery(groupId));
+  const { data: profiles = [] } = useQuery(profilesQuery(ME));
   const [countries, setCountries] = useState<string[]>(trip ? trip.countries.map((c) => c.code) : []);
   const [country, setCountry] = useState(trip?.countries[0]?.code ?? "");
   const [pick, setPick] = useState("");
@@ -69,7 +67,7 @@ export function TripForm({ userId, trip }: { userId: string; trip?: Trip }) {
         const { error } = await supabase.from("trips").update(row).eq("id", tripId);
         if (error) throw error;
       } else {
-        const { data, error } = await supabase.from("trips").insert({ ...row, created_by: userId, group_id: groupId! }).select("id").single();
+        const { data, error } = await supabase.from("trips").insert({ ...row, created_by: userId }).select("id").single();
         if (error) throw error;
         tripId = data.id;
       }
@@ -89,13 +87,18 @@ export function TripForm({ userId, trip }: { userId: string; trip?: Trip }) {
         );
         if (error) throw error;
       }
-      await supabase.from("trip_members").delete().eq("trip_id", tripId);
-      if (members.length) {
-        const { error } = await supabase.from("trip_members").insert(members.map((m) => ({ trip_id: tripId!, user_id: m })));
+      // keep existing invites/acceptances; only add new people (as invites) and remove unticked ones
+      const want = [...new Set([userId, ...members])];
+      const had = (trip?.trip_members ?? []).map((m) => m.user_id);
+      const gone = had.filter((m) => !want.includes(m));
+      if (gone.length) await supabase.from("trip_members").delete().eq("trip_id", tripId).in("user_id", gone);
+      const added = want.filter((m) => !had.includes(m));
+      if (added.length) {
+        const { error } = await supabase.from("trip_members").insert(added.map((m) => ({ trip_id: tripId!, user_id: m })));
         if (error) throw error;
       }
       await qc.invalidateQueries({ queryKey: ["trips"] });
-      toast.success("Trip saved");
+      toast.success(added.length > (trip ? 0 : 1) ? "Trip saved, invites sent" : "Trip saved");
       navigate({ to: "/countries/$code", params: { code: c.code } });
     } catch (err) {
       toast.error((err as Error).message);
@@ -211,9 +214,10 @@ export function TripForm({ userId, trip }: { userId: string; trip?: Trip }) {
       </div>
 
       <div className="space-y-2">
-        <Label>Who went</Label>
+        <Label>Who came along</Label>
+        <p className="text-xs text-muted-foreground">They get an invite to accept or decline. Groups show the trip once enough members are on it.</p>
         <div className="flex flex-wrap gap-3">
-          {profiles.map((p) => (
+          {profiles.filter((p) => p.id !== userId).map((p) => (
             <label key={p.id} className="flex items-center gap-2 rounded-full border border-border px-3 py-1.5 text-sm">
               <Checkbox checked={members.includes(p.id)}
                 onCheckedChange={(v) => setMembers(v ? [...members, p.id] : members.filter((m) => m !== p.id))} />

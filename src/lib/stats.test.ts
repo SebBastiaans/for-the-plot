@@ -51,3 +51,19 @@ describe("stats", () => {
     expect(stopDatesError(t, { arrived_on: "2025-06-05", left_on: "2025-06-03" })).not.toBeNull();
   });
 });
+
+import { qualifiesForGroup } from "./stats";
+describe("qualifiesForGroup", () => {
+  it("'all' needs every member", () => {
+    expect(qualifiesForGroup({ rule_type: "all", rule_value: 100 }, 9, 10)).toBe(false);
+    expect(qualifiesForGroup({ rule_type: "all", rule_value: 100 }, 10, 10)).toBe(true);
+  });
+  it("8 out of 10", () => {
+    expect(qualifiesForGroup({ rule_type: "count", rule_value: 8 }, 7, 10)).toBe(false);
+    expect(qualifiesForGroup({ rule_type: "count", rule_value: 8 }, 8, 10)).toBe(true);
+  });
+  it("at least 60%", () => {
+    expect(qualifiesForGroup({ rule_type: "percent", rule_value: 60 }, 5, 10)).toBe(false);
+    expect(qualifiesForGroup({ rule_type: "percent", rule_value: 60 }, 6, 10)).toBe(true);
+  });
+});
