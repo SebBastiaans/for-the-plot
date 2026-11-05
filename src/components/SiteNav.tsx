@@ -6,6 +6,7 @@ import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { useGroup } from "@/lib/group";
 import { invitesQuery } from "@/lib/data";
+import { FeedbackButton } from "@/components/FeedbackButton";
 
 const links = [
   { to: "/", label: "Globe", icon: Globe2 },
@@ -81,6 +82,7 @@ export function SiteNav() {
                 <Button asChild size="sm" className="hidden md:inline-flex">
                   <Link to="/trips/new"><Plus className="h-4 w-4" /> Add trip</Link>
                 </Button>
+                <FeedbackButton />
                 {bell}
                 <Button asChild size="icon" variant="ghost" aria-label="Profile">
                   <Link to="/profile"><UserRound className="h-5 w-5" /></Link>
