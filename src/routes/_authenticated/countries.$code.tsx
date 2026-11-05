@@ -129,12 +129,13 @@ function TripSection({ trip: full, code }: { trip: Trip; code: string }) {
           {trip.trip_members.map((m) => {
             const p = profiles[m.user_id];
             return (
-              <div key={m.user_id} className="flex items-center gap-2 rounded-full border border-border py-1 pl-1 pr-3 text-sm">
+              <div key={m.user_id} className={`flex items-center gap-2 rounded-full border border-border py-1 pl-1 pr-3 text-sm ${m.status === "pending" ? "opacity-60" : ""}`}>
                 <Avatar className="h-7 w-7">
                   {avatarUrl(p?.avatar_url) && <AvatarImage src={avatarUrl(p?.avatar_url)} />}
                   <AvatarFallback className="bg-accent text-xs">{p?.display_name?.[0] ?? "?"}</AvatarFallback>
                 </Avatar>
                 {p?.display_name ?? "Friend"}
+                {m.status === "pending" && <span className="text-xs text-muted-foreground">pending</span>}
               </div>
             );
           })}

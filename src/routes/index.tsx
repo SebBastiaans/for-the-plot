@@ -4,7 +4,7 @@ import { lazy, Suspense, useEffect, useMemo } from "react";
 import { Camera, Globe2, Route as RouteIcon, Trophy } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { NeedGroup, useGroup } from "@/lib/group";
-import { profilesQuery, tripsQuery } from "@/lib/data";
+import { participants, profilesQuery, tripsQuery } from "@/lib/data";
 import { flagEmoji } from "@/lib/countries";
 import { isUpcoming, todayISO } from "@/lib/stats";
 import { Button } from "@/components/ui/button";
@@ -82,7 +82,7 @@ function Index() {
       <div className="relative overflow-clip">
       <section className="bg-hero relative h-[100svh] min-h-[680px] pt-14 sm:pt-16">
         <div className="relative z-10 mx-auto max-w-3xl px-4 pt-10 sm:px-5 sm:pt-14 text-center">
-          <p className="eyebrow">{group ? group.name : "Field log"} · {visitedCount} countries crossed off</p>
+          <p className="eyebrow">{group ? group.name : "My trips"} · {visitedCount} countries crossed off</p>
           <h1 className="mt-4 text-[2.6rem] leading-[1] sm:text-7xl">
             Where in the world <span className="text-sage">have we been?</span>
           </h1>
@@ -159,7 +159,7 @@ function Index() {
                         <div className="min-w-0">
                           <p className="truncate font-semibold">{t.title}</p>
                           <p className="text-sm text-muted-foreground">
-                            {t.countries.map((c) => c.name).join(", ")} · {t.start_date} · {t.trip_members.map((m) => names[m.user_id]).filter(Boolean).join(", ")}
+                            {t.countries.map((c) => c.name).join(", ")} · {t.start_date} · {participants(t).map((id) => names[id]).filter(Boolean).join(", ")}
                           </p>
                         </div>
                       </Link>
