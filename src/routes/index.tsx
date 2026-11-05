@@ -78,15 +78,15 @@ function Index() {
   const names = Object.fromEntries((profiles.data ?? []).map((p) => [p.id, p.display_name]));
 
   return (
-    <main className="overflow-x-clip">
+    <main className="overflow-x-clip pb-20 md:pb-0">
       <div className="relative overflow-clip">
-      <section className="bg-hero relative h-[100svh] min-h-[680px] pt-16">
-        <div className="relative z-10 mx-auto max-w-3xl px-5 pt-14 text-center">
+      <section className="bg-hero relative h-[100svh] min-h-[680px] pt-14 sm:pt-16">
+        <div className="relative z-10 mx-auto max-w-3xl px-4 pt-10 sm:px-5 sm:pt-14 text-center">
           <p className="eyebrow">{group ? group.name : "Field log"} · {visitedCount} countries crossed off</p>
-          <h1 className="mt-4 text-5xl leading-[1.05] sm:text-7xl">
-            Where in the world <em className="text-sage">have we been?</em>
+          <h1 className="mt-4 text-[2.6rem] leading-[1] sm:text-7xl">
+            Where in the world <span className="inline-block -rotate-2 rounded-2xl bg-sage px-3 text-primary-foreground">have we been?</span> 🌍
           </h1>
-          <p className="mx-auto mt-5 max-w-md text-muted-foreground">Grab the globe and spin it. Click a green country to open the trip log.</p>
+          <p className="mx-auto mt-5 max-w-md text-muted-foreground">Grab the globe, give it a spin, and tap a green country to relive the trip.</p>
           <div className="mt-5 flex justify-center gap-5 text-xs text-muted-foreground">
             <span className="flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full bg-sage" /> Visited</span>
             <span className="flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full bg-planned" /> Planned</span>
@@ -113,7 +113,7 @@ function Index() {
           <h2 className="mt-3 text-center text-4xl sm:text-5xl">One globe for the whole crew</h2>
           <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {steps.map(({ icon: Icon, title, body }, i) => (
-              <div key={title} className="rounded-2xl border border-border bg-card/90 p-6 backdrop-blur">
+              <div key={title} className="rounded-3xl border-2 border-border bg-card/90 p-6 shadow-sticker backdrop-blur transition-transform hover:-rotate-1 hover:-translate-y-1">
                 <div className="flex items-center justify-between">
                   <Icon className="h-6 w-6 text-sage" />
                   <span className="eyebrow">0{i + 1}</span>
@@ -154,7 +154,7 @@ function Index() {
                   {past.slice(0, 8).map((t) => (
                     <li key={t.id}>
                       <Link to="/countries/$code" params={{ code: t.countries[0]!.code }}
-                        className="flex items-center gap-4 rounded-xl border border-border bg-card p-4 transition-colors hover:border-sage/60">
+                        className="flex items-center gap-4 rounded-2xl border-2 border-border bg-card p-4 shadow-sticker transition-transform hover:-translate-y-0.5 hover:border-sage">
                         <span className="text-3xl">{t.countries.map((c) => flagEmoji(c.code)).join("")}</span>
                         <div className="min-w-0">
                           <p className="truncate font-semibold">{t.title}</p>

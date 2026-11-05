@@ -91,6 +91,10 @@ function Profile() {
         </div>
         <Button type="submit" className="w-full sm:w-auto">Save</Button>
       </form>
+      <Button type="button" variant="ghost" className="mt-10 w-full md:hidden"
+        onClick={async () => { qc.clear(); await supabase.auth.signOut(); window.location.href = "/auth"; }}>
+        Sign out
+      </Button>
     </main>
   );
 }
