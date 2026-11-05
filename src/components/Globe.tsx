@@ -112,7 +112,6 @@ export default function Globe({
       const g = f.geometry as { type: string; coordinates: number[][][] | number[][][][] };
       const polys = (g.type === "Polygon" ? [g.coordinates] : g.coordinates) as number[][][][];
       const ring = polys.reduce((a, b) => (b[0]!.length > a[0]!.length ? b : a))[0]!;
-      if (ring.length < 12) return [];
       const lng = ring.reduce((a, p) => a + p[0]!, 0) / ring.length;
       const lat = ring.reduce((a, p) => a + p[1]!, 0) / ring.length;
       return [{ lat, lng, name: f.properties.NAME }];
@@ -140,7 +139,7 @@ export default function Globe({
         showAtmosphere={false}
         labelsData={labels}
         labelText={(l: object) => (l as { name: string }).name}
-        labelSize={0.7}
+        labelSize={0.6}
         labelDotRadius={0}
         labelAltitude={0.014}
         labelResolution={2}
