@@ -1,4 +1,5 @@
 import { ClientOnly, createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { ErrorState, LoadingState } from "@/components/States";
 import { useQuery } from "@tanstack/react-query";
 import { lazy, Suspense, useEffect, useMemo } from "react";
 import { Camera, Globe2, Route as RouteIcon, Trophy } from "lucide-react";
@@ -134,7 +135,9 @@ function Index() {
 
       {session && (
         <section className="relative z-10 mx-auto max-w-6xl bg-background px-5 pb-24">
-          {!loading && !groupId ? <NeedGroup /> : (
+          {!loading && !groupId ? <NeedGroup /> : trips.isLoading ? <LoadingState label="Loading your trips…" /> : trips.error ? (
+            <ErrorState error={trips.error} label="Couldn't load your trips." onRetry={() => trips.refetch()} />
+          ) : (
             <>
               <div className="grid gap-4 sm:grid-cols-3">
                 {[["Countries", visitedCount], ["Trips", past.length], ["Friends", profiles.data?.length ?? 0]].map(([l, v]) => (

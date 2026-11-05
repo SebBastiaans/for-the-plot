@@ -1,4 +1,5 @@
 import { useGroup, NeedGroup } from "@/lib/group";
+import { ErrorState, LoadingState } from "@/components/States";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { participants, profilesQuery, tripsQuery } from "@/lib/data";
@@ -62,6 +63,8 @@ function Rankings() {
       <h1 className="mt-2 text-5xl">Rankings & stats</h1>
       <p className="mt-2 text-muted-foreground">{group ? group.name : "Just me"}</p>
       {!loading && !groupId && <div className="mt-10"><NeedGroup /></div>}
+      {trips.isLoading && <LoadingState label="Crunching the numbers…" />}
+      {trips.error && <ErrorState error={trips.error} label="Couldn't load the rankings." onRetry={() => trips.refetch()} />}
       <div className="mt-8 grid gap-4 sm:grid-cols-3">
         {[["Countries", s.totalCountries], ["Trips", s.totalTrips], ["Continents", s.totalContinents]].map(([l, v]) => (
           <div key={l} className="rounded-2xl border border-border bg-card p-6">

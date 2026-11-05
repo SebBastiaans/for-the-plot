@@ -1,18 +1,20 @@
 import { Suspense, lazy, useState } from "react";
+import { errText } from "@/components/States";
 import { ClientOnly, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowDown, ArrowUp, Search, X } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { COUNTRIES, flagEmoji, getCountry } from "@/lib/countries";
-import { stopDatesError } from "@/lib/stats";
-import { ME, geocode, profilesQuery, type GeoResult, type Trip } from "@/lib/data";
+import { defaultArrival, stopDatesError } from "@/lib/stats";
+import { ME, addMediaToTrip, geocode, profilesQuery, type GeoResult, type Trip } from "@/lib/data";
 import { Button } from "@/components/ui/button";
 import { StopDays } from "@/components/StopDays";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
+import { MediaPicker } from "@/components/MediaPicker";
 
 const PlacePickerMap = lazy(() => import("@/components/PlacePickerMap"));
 
@@ -35,11 +37,15 @@ export function TripForm({ userId, trip }: { userId: string; trip?: Trip }) {
   const [results, setResults] = useState<GeoResult[]>([]);
   const [busy, setBusy] = useState(false);
   const [hover, setHover] = useState<number | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
+  const [progress, setProgress] = useState<number | null>(null);
 
   function addResult(i: number) {
     const r = results[i];
     if (!r) return;
-    setStops([...stops, { name: r.name, lat: r.lat, lng: r.lng, country_code: country || null }]);
+    const prev = stops[stops.length - 1];
+    const arrived = defaultArrival(start, end, prev?.left_on ?? prev?.arrived_on ?? null, stops.length === 0);
+    setStops([...stops, { name: r.name, lat: r.lat, lng: r.lng, country_code: country || null, arrived_on: arrived }]);
     setResults([]); setQ(""); setHover(null);
   }
 
@@ -48,7 +54,7 @@ export function TripForm({ userId, trip }: { userId: string; trip?: Trip }) {
     try {
       setResults(await geocode(q, country || undefined));
     } catch (e) {
-      toast.error((e as Error).message);
+      toast.error(errText(e));
     }
   }
 
@@ -108,20 +114,29 @@ export function TripForm({ userId, trip }: { userId: string; trip?: Trip }) {
         const { error } = await supabase.from("trip_members").insert(added.map((m) => ({ trip_id: tripId!, user_id: m })));
         if (error) throw error;
       }
+      if (files.length) {
+        const { data: fresh } = await supabase.from("trip_stops").select("*").eq("trip_id", tripId!);
+        setProgress(0);
+        try {
+          await addMediaToTrip(userId, { id: tripId!, trip_stops: fresh ?? [] }, files, { onProgress: setProgress });
+        } catch (e) {
+          toast.error(`Trip saved, but some photos didn't upload: ${errText(e)}`);
+        }
+      }
       await qc.invalidateQueries({ queryKey: ["trips"] });
       toast.success(added.length > (trip ? 0 : 1) ? "Trip saved, invites sent" : "Trip saved");
       navigate({ to: "/countries/$code", params: { code: c.code } });
     } catch (err) {
-      toast.error((err as Error).message);
+      toast.error(errText(err));
     } finally {
-      setBusy(false);
+      setBusy(false); setProgress(null);
     }
   }
 
   async function remove() {
     if (!trip || !confirm("Delete this trip?")) return;
     const { error } = await supabase.from("trips").delete().eq("id", trip.id);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(errText(error)); return; }
     await qc.invalidateQueries({ queryKey: ["trips"] });
     navigate({ to: "/" });
   }
@@ -262,11 +277,17 @@ export function TripForm({ userId, trip }: { userId: string; trip?: Trip }) {
         <Textarea id="story" rows={5} value={story} onChange={(e) => setStory(e.target.value)} placeholder="What happened?" />
       </div>
 
+      <div className="space-y-1.5">
+        <Label>Photos and videos</Label>
+        <p className="text-xs text-muted-foreground">Each one is placed on the right stop and day from when and where it was taken.</p>
+        <MediaPicker files={files} onChange={setFiles} progress={progress} />
+      </div>
+
       <div className="flex gap-2">
-        <Button type="submit" disabled={busy}>{trip ? "Save changes" : "Add trip"}</Button>
+        <Button type="submit" disabled={busy}>{busy ? (progress != null ? `Uploading… ${Math.round(progress * 100)}%` : "Saving…") : trip ? "Save changes" : "Add trip"}</Button>
         {trip && <Button type="button" variant="destructive" onClick={remove}>Delete trip</Button>}
       </div>
-      <p className="text-xs text-muted-foreground">Add photos, videos and notes on the country page after saving.</p>
+      <p className="text-xs text-muted-foreground">You can add more photos and notes on the country page later.</p>
     </form>
   );
 }

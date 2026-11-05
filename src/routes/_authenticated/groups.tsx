@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { errText } from "@/components/States";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Copy, Trash2, UserMinus } from "lucide-react";
@@ -29,7 +30,7 @@ function GroupsPage() {
   async function create(e: React.FormEvent) {
     e.preventDefault();
     const { data, error } = await supabase.rpc("create_group", { _name: name });
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(errText(error)); return; }
     setName("");
     await qc.invalidateQueries({ queryKey: ["groups"] });
     setGroupId(data);
@@ -68,14 +69,14 @@ function GroupCard({ group, active, onSelect }: { group: Group; active: boolean;
     const self = id === userId;
     if (!confirm(self ? "Leave this group?" : "Remove this member?")) return;
     const { error } = await supabase.from("group_members").delete().eq("group_id", group.id).eq("user_id", id);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(errText(error)); return; }
     qc.invalidateQueries({ queryKey: self ? ["groups"] : ["profiles", group.id] });
   }
 
   async function del() {
     if (!confirm(`Delete "${group.name}" and all its trips?`)) return;
     const { error } = await supabase.from("groups").delete().eq("id", group.id);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(errText(error)); return; }
     qc.invalidateQueries({ queryKey: ["groups"] });
   }
 
@@ -83,7 +84,7 @@ function GroupCard({ group, active, onSelect }: { group: Group; active: boolean;
     const n = prompt("New name", group.name);
     if (!n) return;
     const { error } = await supabase.from("groups").update({ name: n }).eq("id", group.id);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(errText(error)); return; }
     qc.invalidateQueries({ queryKey: ["groups"] });
   }
 
@@ -142,7 +143,7 @@ function RuleEditor({ group, owner, size }: { group: Group; owner: boolean; size
   async function save() {
     const v = Math.max(1, Math.round(type === "percent" ? Math.min(100, value) : value));
     const { error } = await supabase.from("groups").update({ rule_type: type, rule_value: v }).eq("id", group.id);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(errText(error)); return; }
     toast.success("Group rule saved");
     qc.invalidateQueries({ queryKey: ["groups"] });
     qc.invalidateQueries({ queryKey: ["trips"] });

@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { errText } from "@/components/States";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { Camera } from "lucide-react";
@@ -51,7 +52,7 @@ function Profile() {
       await qc.invalidateQueries({ queryKey: ["profiles"] });
       toast.success("Photo updated");
     } catch (e) {
-      toast.error((e as Error).message);
+      toast.error(errText(e));
       setPreview(null);
     } finally {
       setUploading(false);
@@ -61,7 +62,7 @@ function Profile() {
   async function save(e: React.FormEvent) {
     e.preventDefault();
     const { error } = await supabase.from("profiles").update({ display_name: name }).eq("id", userId);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(errText(error)); return; }
     qc.invalidateQueries({ queryKey: ["profiles"] });
     toast.success("Profile saved");
   }

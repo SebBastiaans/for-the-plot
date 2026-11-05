@@ -4,9 +4,11 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { lazy, Suspense, useState } from "react";
 import { CalendarDays, MapPin, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { MediaPicker } from "@/components/MediaPicker";
+import { ErrorState, LoadingState, errText } from "@/components/States";
 import { supabase } from "@/integrations/supabase/client";
 import { flagEmoji, getCountry } from "@/lib/countries";
-import { participants, tripsQuery, uploadMedia, useProfilesMap, useAvatarUrls, useSignedUrls, type Trip } from "@/lib/data";
+import { participants, tripsQuery, addMediaToTrip, useProfilesMap, useAvatarUrls, useSignedUrls, type Trip } from "@/lib/data";
 import { isUpcoming, todayISO, tripDays } from "@/lib/stats";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -39,7 +41,7 @@ function CountryPage() {
   const { code } = Route.useParams();
   const country = getCountry(code);
   const { groupId } = useGroup();
-  const { data, isLoading } = useQuery(tripsQuery(groupId));
+  const { data, isLoading, error, refetch } = useQuery(tripsQuery(groupId));
   const trips = (data ?? []).filter((t) => t.countries.some((c) => c.code === code.toUpperCase()));
 
   return (
@@ -53,7 +55,9 @@ function CountryPage() {
         </div>
       </div>
       {isLoading ? (
-        <p className="mt-10 text-muted-foreground">Loading…</p>
+        <LoadingState label="Loading trips…" />
+      ) : error ? (
+        <ErrorState error={error} label="Couldn't load the trips." onRetry={() => refetch()} />
       ) : trips.length === 0 ? (
         <p className="mt-10 text-muted-foreground">
           Nobody has logged a trip here yet. <Link to="/trips/new" className="text-sage underline">Add one</Link>.
@@ -240,37 +244,40 @@ function AddMedia({ trip }: { trip: Trip }) {
   const [stop, setStop] = useState("");
   const [when, setWhen] = useState("");
   const [busy, setBusy] = useState(false);
+  const [progress, setProgress] = useState<number | null>(null);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!files.length) return;
-    setBusy(true);
+    setBusy(true); setProgress(0);
     try {
-      for (const f of files) {
-        const { path, type } = await uploadMedia(userId, trip.id, f);
-        const { error } = await supabase.from("trip_media").insert({
-          trip_id: trip.id, storage_path: path, media_type: type, caption: caption || null,
-          stop_id: stop || null, taken_at: when ? new Date(when).toISOString() : null, uploaded_by: userId,
-        });
-        if (error) throw error;
-      }
+      await addMediaToTrip(userId, trip, files, {
+        caption, stopId: stop || null, takenAt: when ? new Date(when).toISOString() : null, onProgress: setProgress,
+      });
+      const n = files.length;
       setFiles([]); setCaption("");
-      (e.target as HTMLFormElement).reset();
       await qc.invalidateQueries({ queryKey: ["trips"] });
-      toast.success("Added to the gallery");
+      toast.success(`${n} ${n === 1 ? "item" : "items"} added to the gallery`);
     } catch (err) {
-      toast.error((err as Error).message);
+      toast.error(`Upload failed: ${errText(err)}`);
     } finally {
-      setBusy(false);
+      setBusy(false); setProgress(null);
     }
   }
 
   return (
-    <form onSubmit={submit} className="mt-5 flex flex-wrap items-center gap-2 rounded-xl border border-dashed border-border p-4">
-      <Input type="file" accept="image/*,video/*" multiple onChange={(e) => setFiles([...(e.target.files ?? [])])} className="w-auto" aria-label="Photos or videos" />
-      <Input placeholder="Caption" value={caption} onChange={(e) => setCaption(e.target.value)} className="w-40" />
-      <PlaceTimeFields trip={trip} stop={stop} setStop={setStop} when={when} setWhen={setWhen} />
-      <Button type="submit" size="sm" disabled={busy || !files.length}>{busy ? "Uploading…" : "Upload"}</Button>
+    <form onSubmit={submit} className="mt-5 space-y-3 rounded-xl border border-dashed border-border p-4">
+      <MediaPicker files={files} onChange={setFiles} progress={progress} />
+      {files.length > 0 && (
+        <>
+          <p className="text-xs text-muted-foreground">Place and time are filled in from each photo. Pick them below only to override.</p>
+          <div className="flex flex-wrap items-center gap-2">
+            <Input placeholder="Caption" value={caption} onChange={(e) => setCaption(e.target.value)} className="w-40" />
+            <PlaceTimeFields trip={trip} stop={stop} setStop={setStop} when={when} setWhen={setWhen} />
+            <Button type="submit" size="sm" disabled={busy}>{busy ? `Uploading… ${Math.round((progress ?? 0) * 100)}%` : `Upload ${files.length}`}</Button>
+          </div>
+        </>
+      )}
     </form>
   );
 }
@@ -288,8 +295,9 @@ function AddNote({ trip }: { trip: Trip }) {
       trip_id: trip.id, body, author_id: userId, stop_id: stop || null,
       happened_at: when ? new Date(when).toISOString() : null,
     });
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(`Couldn't save note: ${errText(error)}`); return; }
     setBody("");
+    toast.success("Note added");
     await qc.invalidateQueries({ queryKey: ["trips"] });
   }
 
@@ -311,8 +319,9 @@ function DeleteMedia({ id, path }: { id: string; path: string }) {
       onClick={async () => {
         if (!confirm("Remove this item?")) return;
         const { error } = await supabase.from("trip_media").delete().eq("id", id);
-        if (error) { toast.error(error.message); return; }
+        if (error) { toast.error(`Couldn't remove: ${errText(error)}`); return; }
         await supabase.storage.from("trip-media").remove([path]);
+        toast.success("Removed");
         qc.invalidateQueries({ queryKey: ["trips"] });
       }}>
       <Trash2 className="h-4 w-4" />

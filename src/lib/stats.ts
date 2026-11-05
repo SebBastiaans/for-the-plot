@@ -110,3 +110,10 @@ export function qualifiesForGroup(rule: GroupRule, present: number, size: number
   if (rule.rule_type === "count") return present >= Math.min(rule.rule_value, size);
   return present * 100 >= rule.rule_value * size;
 }
+
+/** Pre-filled arrival for a new route place: the previous place's last day, or the trip start for the first place. */
+export function defaultArrival(start: string, end: string, prevLast: string | null, first: boolean): string | null {
+  const d = prevLast ?? (first ? start : null);
+  if (!d || !start || !end || d < start || d > end) return null;
+  return d;
+}
