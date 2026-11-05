@@ -61,11 +61,13 @@ function Index() {
     const s: Record<string, CountryStatus> = {};
     for (const t of trips.data ?? []) {
       const up = isUpcoming(t, today);
-      const cur = s[t.country_code];
-      if (up) {
-        if (!cur) s[t.country_code] = { status: "planned", trips: 0 };
-      } else {
-        s[t.country_code] = { status: "visited", trips: (cur?.status === "visited" ? cur.trips : 0) + 1 };
+      for (const { code } of t.countries) {
+        const cur = s[code];
+        if (up) {
+          if (!cur) s[code] = { status: "planned", trips: 0 };
+        } else {
+          s[code] = { status: "visited", trips: (cur?.status === "visited" ? cur.trips : 0) + 1 };
+        }
       }
     }
     return s;
@@ -151,13 +153,13 @@ function Index() {
                 <ul className="mt-6 grid gap-3 sm:grid-cols-2">
                   {past.slice(0, 8).map((t) => (
                     <li key={t.id}>
-                      <Link to="/countries/$code" params={{ code: t.country_code }}
+                      <Link to="/countries/$code" params={{ code: t.countries[0]!.code }}
                         className="flex items-center gap-4 rounded-xl border border-border bg-card p-4 transition-colors hover:border-sage/60">
-                        <span className="text-3xl">{flagEmoji(t.country_code)}</span>
+                        <span className="text-3xl">{t.countries.map((c) => flagEmoji(c.code)).join("")}</span>
                         <div className="min-w-0">
                           <p className="truncate font-semibold">{t.title}</p>
                           <p className="text-sm text-muted-foreground">
-                            {t.country_name} · {t.start_date} · {t.trip_members.map((m) => names[m.user_id]).filter(Boolean).join(", ")}
+                            {t.countries.map((c) => c.name).join(", ")} · {t.start_date} · {t.trip_members.map((m) => names[m.user_id]).filter(Boolean).join(", ")}
                           </p>
                         </div>
                       </Link>

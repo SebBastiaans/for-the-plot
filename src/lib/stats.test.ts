@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { computeStats, isUpcoming, tripDays, type StatTrip } from "./stats";
+import { computeStats, isUpcoming, stopDatesError, tripDays, type StatTrip } from "./stats";
 
 const trip = (o: Partial<StatTrip>): StatTrip => ({
-  id: "t", country_code: "FR", country_name: "France", start_date: "2025-06-01", end_date: "2025-06-05",
+  id: "t", countries: [{ code: "FR", name: "France" }], start_date: "2025-06-01", end_date: "2025-06-05",
   stops: [], members: [], media: [], ...o,
 });
 
@@ -20,14 +20,34 @@ describe("stats", () => {
   it("ranks friends by distinct countries visited", () => {
     const s = computeStats(
       [
-        trip({ id: "1", country_code: "FR", members: ["a", "b"] }),
-        trip({ id: "2", country_code: "IT", country_name: "Italy", members: ["a"] }),
-        trip({ id: "3", country_code: "FR", members: ["a"] }),
+        trip({ id: "1", members: ["a", "b"] }),
+        trip({ id: "2", countries: [{ code: "IT", name: "Italy" }], members: ["a"] }),
+        trip({ id: "3", members: ["a"] }),
       ],
       { a: "Anna", b: "Bas" },
       "2026-11-05",
     );
     expect(s.friendsByCountries[0]).toMatchObject({ key: "a", value: 2 });
     expect(s.friendsByCountries[1]).toMatchObject({ key: "b", value: 1 });
+  });
+
+  it("counts a multi-country trip for every country it includes", () => {
+    const s = computeStats(
+      [trip({ countries: [{ code: "FR", name: "France" }, { code: "JP", name: "Japan" }], members: ["a"] })],
+      { a: "Anna" },
+      "2026-11-05",
+    );
+    expect(s.totalCountries).toBe(2);
+    expect(s.totalContinents).toBe(2);
+    expect(s.friendsByCountries[0]).toMatchObject({ key: "a", value: 2 });
+  });
+
+  it("requires stop dates to fall inside the trip", () => {
+    const t = { start_date: "2025-06-01", end_date: "2025-06-10" };
+    expect(stopDatesError(t, {})).toBeNull();
+    expect(stopDatesError(t, { arrived_on: "2025-06-02", left_on: "2025-06-04" })).toBeNull();
+    expect(stopDatesError(t, { arrived_on: "2025-05-30" })).not.toBeNull();
+    expect(stopDatesError(t, { left_on: "2025-06-11" })).not.toBeNull();
+    expect(stopDatesError(t, { arrived_on: "2025-06-05", left_on: "2025-06-03" })).not.toBeNull();
   });
 });

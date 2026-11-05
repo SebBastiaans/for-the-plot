@@ -2,8 +2,7 @@ import { getCountry } from "./countries";
 
 export type StatTrip = {
   id: string;
-  country_code: string;
-  country_name: string;
+  countries: { code: string; name: string }[];
   start_date: string;
   end_date: string;
   stops: { name: string }[];
@@ -45,11 +44,14 @@ export function computeStats(trips: StatTrip[], names: Record<string, string>, t
   const continents = new Set<string>();
 
   for (const t of past) {
-    const c = countries.get(t.country_code) ?? { label: t.country_name, value: 0 };
-    c.value++;
-    countries.set(t.country_code, c);
-    const continent = getCountry(t.country_code)?.continent;
-    if (continent) continents.add(continent);
+    const tripContinents = new Set<string>();
+    for (const tc of t.countries) {
+      const c = countries.get(tc.code) ?? { label: tc.name, value: 0 };
+      c.value++;
+      countries.set(tc.code, c);
+      const continent = getCountry(tc.code)?.continent;
+      if (continent) { continents.add(continent); tripContinents.add(continent); }
+    }
     for (const s of t.stops) {
       const k = s.name.toLowerCase();
       const e = cities.get(k) ?? { label: s.name, value: 0 };
@@ -63,11 +65,9 @@ export function computeStats(trips: StatTrip[], names: Record<string, string>, t
     const days = tripDays(t.start_date, t.end_date);
     for (const m of t.members) {
       if (!friendCountries.has(m)) friendCountries.set(m, new Set());
-      friendCountries.get(m)!.add(t.country_code);
-      if (continent) {
-        if (!friendContinents.has(m)) friendContinents.set(m, new Set());
-        friendContinents.get(m)!.add(continent);
-      }
+      for (const tc of t.countries) friendCountries.get(m)!.add(tc.code);
+      if (!friendContinents.has(m)) friendContinents.set(m, new Set());
+      for (const ct of tripContinents) friendContinents.get(m)!.add(ct);
       friendDays.set(m, (friendDays.get(m) ?? 0) + days);
     }
     for (const md of t.media) friendMedia.set(md.uploaded_by, (friendMedia.get(md.uploaded_by) ?? 0) + 1);
@@ -88,4 +88,16 @@ export function computeStats(trips: StatTrip[], names: Record<string, string>, t
     friendsByMedia: byFriend(friendMedia),
     tripsPerYear: rank(years).sort((a, b) => a.key.localeCompare(b.key)),
   };
+}
+
+/** A stop's own dates are optional, but when set they must fall inside the trip and arrive before leaving. */
+export function stopDatesError(
+  trip: { start_date: string; end_date: string },
+  stop: { arrived_on?: string | null; left_on?: string | null },
+): string | null {
+  const { arrived_on: a, left_on: l } = stop;
+  if (a && (a < trip.start_date || a > trip.end_date)) return "Arrival must be within the trip dates";
+  if (l && (l < trip.start_date || l > trip.end_date)) return "Departure must be within the trip dates";
+  if (a && l && l < a) return "Departure must be after arrival";
+  return null;
 }

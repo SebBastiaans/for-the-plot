@@ -57,11 +57,11 @@ function Upcoming() {
                   <p className="eyebrow">days to go</p>
                 </div>
                 <div className="min-w-0 flex-1">
-                  <Link to="/countries/$code" params={{ code: t.country_code }} className="text-xl font-semibold hover:text-sage">
-                    {flagEmoji(t.country_code)} {t.title}
+                  <Link to="/countries/$code" params={{ code: t.countries[0]!.code }} className="text-xl font-semibold hover:text-sage">
+                    {t.countries.map((c) => flagEmoji(c.code)).join("")} {t.title}
                   </Link>
                   <p className="text-sm text-muted-foreground">
-                    {t.country_name} · {t.start_date} → {t.end_date}
+                    {t.countries.map((c) => c.name).join(", ")} · {t.start_date} → {t.end_date}
                     {t.trip_stops.length > 0 && ` · ${t.trip_stops.map((s) => s.name).join(" → ")}`}
                   </p>
                   <p className="mt-1 text-sm">
