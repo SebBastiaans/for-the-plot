@@ -17,7 +17,11 @@ Snapchat and Instagram don't let other apps read your stories, so a direct sync 
 - **Bulk import:** a new "Import photos" page. Pick many photos at once; they're matched to your existing trips by date. Photos that don't fit any trip are grouped by date and country into suggested new trips, which you can create with one tap (and then edit).
 - Videos and photos without location or time info stay unsorted and can be tagged by hand. Tip: Instagram and Snapchat save your own stories to your camera roll if you turn that on in their settings, so those can be imported too.
 
+## 5. Globe keeps spinning on hover
+Pointing at a country still highlights it and shows its name, but the globe keeps turning.
+
 ## Technical details
+- Globe: remove the auto-rotate pause on polygon hover.
 - StopDays/TripForm: on adding a stop, set `arrived_on` = previous stop's `left_on` ?? trip start (only when within trip range).
 - PlacePickerMap: marker element = wrapper div; apply scale to an inner span; drop `transition-transform` on the wrapper.
 - Read EXIF (DateTimeOriginal, GPS) in the browser with `exifr`; match to trip by date range, then to nearest stop by distance/date; store `stop_id`/`taken_at` on `trip_media` (columns already used for tagging).
