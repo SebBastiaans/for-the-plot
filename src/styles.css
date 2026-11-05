@@ -108,7 +108,7 @@
     oklch(0.985 0.004 120 / 85%) 35%,
     oklch(0.985 0.004 120) 60%
   );
-  --shadow-glow: 0 0 40px -10px color-mix(in oklab, var(--sage) 50%, transparent);
+  // --shadow-glow: 0 0 40px -10px color-mix(in oklab, var(--sage) 50%, transparent);
 
   --chart-1: oklch(0.62 0.15 145);
   --chart-2: oklch(0.52 0.12 145);
