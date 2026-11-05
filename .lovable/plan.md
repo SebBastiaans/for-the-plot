@@ -11,19 +11,21 @@ A shared site where you and your friends log in, add trips, and see every visite
 2. **Country page (/countries/$code)** - everything about that country:
    - Trips list with dates and cities visited
    - Who went (friend avatars and names)
-   - Photo gallery
-   - Stories / notes per trip
+   - Gallery of photos and videos; each item can be tagged with a place (city/stop) and a date/time, and shows as a pin on the route map
+   - Stories / notes per trip, also linkable to a place and time
    - Route of the trip drawn on a map, with stops in order
 3. **Sign in / sign up (/auth)** - email and password.
 4. **Add / edit trip (/trips/new, /trips/$id/edit)** - signed-in only: pick country, dates, add cities as ordered stops (route), tag friends who came along, upload photos, write the story.
-5. **Profile (/profile)** - set display name and avatar.
+5. **Rankings (/rankings)** - leaderboards and stats: most visited countries and cities, friends ranked by countries visited, most days abroad, most photos/videos, continents covered, trips per year.
+6. **Upcoming trips (/upcoming)** - planned future trips with countdown, destination, dates and who's coming; friends can join a trip. Planned countries show in a different color on the globe.
+7. **Profile (/profile)** - set display name and avatar.
 
 All friends can see everything; only signed-in friends can add trips, and you can only edit or delete trips you created.
 
 ## Technical details
 - Lovable Cloud for accounts, data and photo storage.
-- Tables: `profiles` (display name, avatar), `trips` (country code, title, start/end date, story, created_by), `trip_stops` (trip, city name, lat/lng, order), `trip_members` (trip, profile), `trip_photos` (trip, storage path, caption). RLS: signed-in users read all; writers own their trips.
-- Public storage bucket `trip-photos`.
+- Tables: `profiles` (display name, avatar), `trips` (country code, title, start/end date, story, created_by), `trip_stops` (trip, city name, lat/lng, order), `trip_members` (trip, profile), `trip_media` (trip, storage path, type photo/video, caption, optional stop, taken_at), `trip_notes` (trip, text, optional stop, happened_at); upcoming trips are `trips` with future dates. RLS: signed-in users read all; writers own their trips.
+- Public storage bucket `trip-media` for photos and videos (size limit raised for video).
 - Globe: `react-globe.gl` (hex-dot polygon layer for the dotted look, atmosphere glow, auto-rotate that pauses on drag) with a world countries GeoJSON (ISO codes) bundled in the project; loaded client-only (lazy import behind ClientOnly) since it needs the browser.
 - Route map on the country page: MapLibre with a free OpenFreeMap dark style; stops plotted and connected by a line. City coordinates entered via a free geocoding lookup (OpenStreetMap Nominatim) when adding a stop.
 - Each page gets its own title and description for sharing.
