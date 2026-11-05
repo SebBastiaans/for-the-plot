@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Bell, CalendarClock, Globe2, Plus, Trophy, UserRound, Users } from "lucide-react";
+import { Bell, CalendarClock, Globe2, Luggage, Plus, Trophy, UserRound, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,7 @@ import { invitesQuery } from "@/lib/data";
 
 const links = [
   { to: "/", label: "Globe", icon: Globe2 },
+  { to: "/trips", label: "Trips", icon: Luggage },
   { to: "/rankings", label: "Rankings", icon: Trophy },
   { to: "/upcoming", label: "Upcoming", icon: CalendarClock },
   { to: "/groups", label: "Groups", icon: Users },
@@ -42,8 +43,8 @@ export function SiteNav() {
 
   return (
     <>
-      <header className="fixed inset-x-0 top-0 z-40 border-b border-border/60 bg-background/75 backdrop-blur-md">
-        <div className="mx-auto flex h-14 max-w-6xl items-center gap-3 px-4 sm:h-16 sm:gap-6 sm:px-5">
+      <header className="pointer-events-none fixed inset-x-0 top-2 z-40 flex justify-center px-3 sm:top-3">
+        <div className="pointer-events-auto flex h-14 w-full max-w-4xl items-center gap-3 rounded-full border border-border/70 bg-background/80 pl-2 pr-2 shadow-sticker backdrop-blur-xl sm:gap-5 sm:pr-3">
           <Link to="/" className="flex shrink-0 items-center gap-2 font-display text-lg font-extrabold">
             <span className="grid h-8 w-8 place-items-center rounded-full bg-sage text-primary-foreground">
               <Globe2 className="h-5 w-5" />
@@ -101,9 +102,9 @@ export function SiteNav() {
       {signedIn && (
         <nav
           aria-label="Main"
-          className="pb-safe fixed inset-x-0 bottom-0 z-40 border-t border-border/60 bg-background/90 backdrop-blur-md md:hidden"
+          className="pb-safe pointer-events-none fixed inset-x-0 bottom-2 z-40 px-3 md:hidden"
         >
-          <div className="mx-auto grid max-w-md grid-cols-5 items-end px-2 pt-1.5">
+          <div className="pointer-events-auto mx-auto grid max-w-md grid-cols-5 items-end rounded-full border border-border/70 bg-background/85 px-2 py-1.5 shadow-sticker backdrop-blur-xl">
             {links.slice(0, 2).map((l) => <TabLink key={l.to} {...l} />)}
             <Link
               to="/trips/new"
@@ -112,7 +113,7 @@ export function SiteNav() {
             >
               <Plus className="h-7 w-7" />
             </Link>
-            {links.slice(2).map((l) => <TabLink key={l.to} {...l} />)}
+            {links.filter((l) => l.to === "/rankings" || l.to === "/groups").map((l) => <TabLink key={l.to} {...l} />)}
           </div>
         </nav>
       )}

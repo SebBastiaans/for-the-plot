@@ -24,3 +24,6 @@
 - [x] Auto-tag photos by time/place; bulk import with suggested trips
 - [x] Globe keeps spinning on hover
 - [x] Clear loading / error / success states
+- [x] My trips list + trip detail page
+- [x] Globe landscape shading
+- [x] Floating notch header

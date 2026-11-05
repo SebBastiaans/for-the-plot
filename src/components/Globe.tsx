@@ -86,7 +86,13 @@ export default function Globe({
   }, [features]);
 
   const material = useMemo(
-    () => new THREE.MeshPhongMaterial({ color: colors.ocean, emissive: colors.ocean, emissiveIntensity: 0.25, shininess: 4 }),
+    () => {
+      // simple landscape map (deserts, forests, ice, mountain shading) under the country shapes
+      const dark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      const map = new THREE.TextureLoader().load(`/textures/globe-${dark ? "dark" : "light"}.jpg`);
+      map.colorSpace = THREE.SRGBColorSpace;
+      return new THREE.MeshPhongMaterial({ map, color: "#ffffff", emissive: "#ffffff", emissiveMap: map, emissiveIntensity: dark ? 0.35 : 0.05, shininess: 0 });
+    },
     [colors.ocean],
   );
 
@@ -158,12 +164,12 @@ export default function Globe({
         polygonCapColor={(f: object) => {
           const code = (f as Feature).properties.ISO_A2;
           const c = statusColor(code);
-          if (!c) return code === hover ? alpha(colors.visited, 0.35) : colors.land;
-          return alpha(c, code === hover ? 1 : 0.85);
+          if (!c) return code === hover ? alpha(colors.visited, 0.3) : "rgba(0,0,0,0)";
+          return alpha(c, code === hover ? 0.85 : 0.6);
         }}
         polygonSideColor={(f: object) => {
           const c = statusColor((f as Feature).properties.ISO_A2);
-          return c ? alpha(c, 0.5) : colors.land;
+          return c ? alpha(c, 0.6) : "rgba(0,0,0,0)";
         }}
         polygonStrokeColor={(f: object) => {
           const code = (f as Feature).properties.ISO_A2;
