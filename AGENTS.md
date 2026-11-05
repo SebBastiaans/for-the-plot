@@ -28,3 +28,10 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+## Project rules
+- Data is read/written from the browser with the generated client + React Query (`src/lib/data.ts`); RLS limits reads to signed-in users and writes to owners. Why: no server functions needed for a small friends app.
+- "Upcoming" vs "visited" is derived from `start_date` vs today (`src/lib/stats.ts`), never stored. Why: avoids stale status.
+- Trip media lives in a private bucket under `<userId>/<tripId>/…` and is shown via signed URLs. Why: workspace blocks public buckets.
+- Globe (react-globe.gl) and route map (MapLibre + OpenFreeMap) are lazy-loaded behind ClientOnly; WebGL colors come from `--globe-*`/`--map-line` hex tokens in styles.css. Why: browser-only libs and three.js cannot parse oklch.
+- Country shapes are bundled in `public/data/countries.geojson` (ISO_A2 fixed for FR/NO); `src/lib/countries.ts` is generated from it.
