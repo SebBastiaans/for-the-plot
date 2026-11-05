@@ -1,12 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import GlobeGL, { type GlobeMethods } from "react-globe.gl";
+import * as THREE from "three";
 
 export type CountryStatus = { status: "visited" | "planned"; trips: number };
 
 type Feature = { properties: { ISO_A2: string; NAME: string }; geometry: unknown };
 
-const EARTH_IMG = "https://unpkg.com/three-globe@2.41.12/example/img/earth-blue-marble.jpg";
-const BUMP_IMG = "https://unpkg.com/three-globe@2.41.12/example/img/earth-topology.png";
 
 function readColors() {
   const css = getComputedStyle(document.documentElement);
@@ -15,7 +14,8 @@ function readColors() {
     visited: v("--globe-visited", "#7ee08a"),
     planned: v("--globe-planned", "#f5bb55"),
     stroke: v("--globe-stroke", "#e8ffe8"),
-    atmosphere: v("--globe-atmosphere", "#7fb8ff"),
+    ocean: v("--globe-ocean", "#1d3b5c"),
+    land: v("--globe-land", "#e8f0e6"),
   };
 }
 
@@ -83,6 +83,27 @@ export default function Globe({
     ref.current?.pointOfView({ lat: 25, lng: 10, altitude: 1.55 }, 0);
   }, [features]);
 
+  const material = useMemo(
+    () => new THREE.MeshPhongMaterial({ color: colors.ocean, emissive: colors.ocean, emissiveIntensity: 0.35, shininess: 8 }),
+    [colors.ocean],
+  );
+
+  // pulsing rings on every crossed-off country (centroid from the geometry's bbox)
+  const rings = useMemo(() => {
+    const out: { lat: number; lng: number; color: string }[] = [];
+    for (const f of features) {
+      const s = statuses[f.properties.ISO_A2];
+      if (!s) continue;
+      const g = f.geometry as { type: string; coordinates: number[][][] | number[][][][] };
+      const polys = (g.type === "Polygon" ? [g.coordinates] : g.coordinates) as number[][][][];
+      const ring = polys.reduce((a, b) => (b[0]!.length > a[0]!.length ? b : a))[0]!;
+      const lng = ring.reduce((a, p) => a + p[0]!, 0) / ring.length;
+      const lat = ring.reduce((a, p) => a + p[1]!, 0) / ring.length;
+      out.push({ lat, lng, color: s.status === "visited" ? colors.visited : colors.planned });
+    }
+    return out;
+  }, [features, statuses, colors]);
+
   const statusColor = (code: string) => {
     const s = statuses[code];
     return s ? (s.status === "visited" ? colors.visited : colors.planned) : null;
@@ -93,18 +114,26 @@ export default function Globe({
       ref={wrap}
       tabIndex={0}
       aria-label="Interactive globe of the countries we've visited — drag to spin"
-      className="globe-touch h-full w-full cursor-grab rounded-full active:cursor-grabbing"
+      className="globe-touch h-full w-full cursor-grab rounded-full bg-transparent active:cursor-grabbing"
     >
       <GlobeGL
         ref={ref}
         width={size.w}
         height={size.h}
         backgroundColor="rgba(0,0,0,0)"
-        globeImageUrl={EARTH_IMG}
-        bumpImageUrl={BUMP_IMG}
-        showAtmosphere
-        atmosphereColor={colors.atmosphere}
-        atmosphereAltitude={0.18}
+        globeMaterial={material}
+        showAtmosphere={false}
+        hexPolygonsData={features}
+        hexPolygonResolution={3}
+        hexPolygonMargin={0.4}
+        hexPolygonUseDots
+        hexPolygonAltitude={0.004}
+        hexPolygonColor={() => colors.land}
+        ringsData={rings}
+        ringColor={(r: object) => (t: number) => alpha((r as { color: string }).color, 1 - t)}
+        ringMaxRadius={4}
+        ringPropagationSpeed={2}
+        ringRepeatPeriod={1400}
         polygonsData={features}
         polygonsTransitionDuration={200}
         polygonAltitude={(f: object) => {
@@ -114,8 +143,8 @@ export default function Globe({
         polygonCapColor={(f: object) => {
           const code = (f as Feature).properties.ISO_A2;
           const c = statusColor(code);
-          if (!c) return code === hover ? "rgba(255,255,255,0.18)" : "rgba(0,0,0,0)";
-          return alpha(c, code === hover ? 0.75 : 0.5);
+          if (!c) return code === hover ? "rgba(255,255,255,0.22)" : "rgba(0,0,0,0)";
+          return alpha(c, code === hover ? 0.95 : 0.8);
         }}
         polygonSideColor={(f: object) => {
           const c = statusColor((f as Feature).properties.ISO_A2);
@@ -123,7 +152,7 @@ export default function Globe({
         }}
         polygonStrokeColor={(f: object) => {
           const code = (f as Feature).properties.ISO_A2;
-          return statuses[code] ? colors.stroke : "rgba(255,255,255,0.18)";
+          return statuses[code] ? colors.stroke : "rgba(0,0,0,0)";
         }}
         polygonLabel={(f: object) => {
           const p = (f as Feature).properties;
@@ -131,7 +160,7 @@ export default function Globe({
           const sub = s
             ? s.status === "visited"
               ? `${s.trips} trip${s.trips === 1 ? "" : "s"} · tap to open`
-              : "Planned trip ✈️"
+              : "Planned trip"
             : "Not crossed off yet";
           return `<div style="font-family:Nunito,sans-serif;background:rgba(20,20,20,.92);padding:6px 12px;border-radius:14px;color:#fff;font-weight:700">${p.NAME}<br/><span style="opacity:.75;font-size:12px;font-weight:600">${sub}</span></div>`;
         }}

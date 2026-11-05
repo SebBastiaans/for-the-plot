@@ -84,7 +84,7 @@ function Index() {
         <div className="relative z-10 mx-auto max-w-3xl px-4 pt-10 sm:px-5 sm:pt-14 text-center">
           <p className="eyebrow">{group ? group.name : "Field log"} · {visitedCount} countries crossed off</p>
           <h1 className="mt-4 text-[2.6rem] leading-[1] sm:text-7xl">
-            Where in the world <span className="inline-block -rotate-2 rounded-2xl bg-sage px-3 text-primary-foreground">have we been?</span> 🌍
+            Where in the world <span className="text-sage">have we been?</span>
           </h1>
           <p className="mx-auto mt-5 max-w-md text-muted-foreground">Grab the globe, give it a spin, and tap a green country to relive the trip.</p>
           <div className="mt-5 flex justify-center gap-5 text-xs text-muted-foreground">
