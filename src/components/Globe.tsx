@@ -28,7 +28,7 @@ export default function Globe({
     () => ({
       visited: cssVar("--globe-visited", "#a0c49d"),
       planned: cssVar("--globe-planned", "#e0b45c"),
-      dim: cssVar("--globe-dim", "rgba(160,196,157,0.16)"),
+      dim: cssVar("--globe-dim", "rgba(160,196,157,0.3)"),
       surface: cssVar("--globe-surface", "#10261b"),
       atmosphere: cssVar("--globe-atmosphere", "#a0c49d"),
     }),

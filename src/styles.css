@@ -83,7 +83,7 @@
   /* WebGL globe/map colors (hex, read at runtime) */
   --globe-visited: #a0c49d;
   --globe-planned: #e0b45c;
-  --globe-dim: rgba(160, 196, 157, 0.16);
+  --globe-dim: rgba(160, 196, 157, 0.3);
   --globe-surface: #10261b;
   --globe-atmosphere: #a0c49d;
   --map-line: #a0c49d;
