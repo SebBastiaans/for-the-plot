@@ -4,17 +4,20 @@ import { Globe2, Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
+import { useGroup } from "@/lib/group";
 
 const links = [
   { to: "/", label: "Globe" },
   { to: "/rankings", label: "Rankings" },
   { to: "/upcoming", label: "Upcoming" },
+  { to: "/groups", label: "Groups" },
 ] as const;
 
 export function SiteNav() {
   const { session, ready } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { groups, groupId, setGroupId } = useGroup();
 
   async function signOut() {
     await queryClient.cancelQueries();
@@ -46,6 +49,16 @@ export function SiteNav() {
         <div className="ml-auto flex items-center gap-2">
           {ready && session ? (
             <>
+              {groups.length > 0 && (
+                <select
+                  aria-label="Group"
+                  value={groupId ?? ""}
+                  onChange={(e) => setGroupId(e.target.value)}
+                  className="h-8 max-w-40 rounded-md border border-input bg-background px-2 text-sm"
+                >
+                  {groups.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
+                </select>
+              )}
               <Button asChild size="sm">
                 <Link to="/trips/new">
                   <Plus className="h-4 w-4" /> Add trip
