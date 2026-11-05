@@ -32,11 +32,19 @@ export function SiteNav() {
   const signedIn = ready && !!session;
   const { data: invites = [] } = useQuery({ ...invitesQuery(session?.user.id), enabled: signedIn });
   const bell = (
-    <Button asChild size="icon" variant="ghost" aria-label={`Inbox${invites.length ? `, ${invites.length} new` : ""}`} className="relative">
+    <Button
+      asChild
+      size="icon"
+      variant="ghost"
+      aria-label={`Inbox${invites.length ? `, ${invites.length} new` : ""}`}
+      className="relative"
+    >
       <Link to="/inbox">
         <Bell className="h-5 w-5" />
         {invites.length > 0 && (
-          <span className="absolute -right-0.5 -top-0.5 grid h-5 min-w-5 place-items-center rounded-full bg-primary px-1 text-[11px] font-bold text-primary-foreground">{invites.length}</span>
+          <span className="absolute -right-0.5 -top-0.5 grid h-5 min-w-5 place-items-center rounded-full bg-primary px-1 text-[11px] font-bold text-primary-foreground">
+            {invites.length}
+          </span>
         )}
       </Link>
     </Button>
@@ -68,7 +76,7 @@ export function SiteNav() {
           <div className="ml-auto flex min-w-0 items-center gap-2">
             {signedIn ? (
               <>
-                {(
+                {
                   <select
                     aria-label="Group"
                     value={groupId ?? ""}
@@ -76,16 +84,24 @@ export function SiteNav() {
                     className="h-9 min-w-0 max-w-48 truncate rounded-full [field-sizing:content] border border-input bg-background px-3 text-sm font-bold"
                   >
                     <option value="me">Just me</option>
-                    {groups.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
+                    {groups.map((g) => (
+                      <option key={g.id} value={g.id}>
+                        {g.name}
+                      </option>
+                    ))}
                   </select>
-                )}
+                }
                 <Button asChild size="sm" className="hidden md:inline-flex">
-                  <Link to="/trips/new"><Plus className="h-4 w-4" /> Add trip</Link>
+                  <Link to="/trips/new">
+                    <Plus className="h-4 w-4" /> Add trip
+                  </Link>
                 </Button>
                 <FeedbackButton />
                 {bell}
                 <Button asChild size="icon" variant="ghost" aria-label="Profile">
-                  <Link to="/profile"><UserRound className="h-5 w-5" /></Link>
+                  <Link to="/profile">
+                    <UserRound className="h-5 w-5" />
+                  </Link>
                 </Button>
                 <Button size="sm" variant="ghost" className="hidden md:inline-flex" onClick={signOut}>
                   Sign out
@@ -102,20 +118,23 @@ export function SiteNav() {
 
       {/* Mobile tab bar — thumbs first */}
       {signedIn && (
-        <nav
-          aria-label="Main"
-          className="pb-safe pointer-events-none fixed inset-x-0 bottom-2 z-40 px-3 md:hidden"
-        >
-          <div className="pointer-events-auto mx-auto grid max-w-md grid-cols-5 items-end rounded-full border border-border/70 bg-background/85 px-2 py-1.5 shadow-sticker backdrop-blur-xl">
-            {links.slice(0, 2).map((l) => <TabLink key={l.to} {...l} />)}
+        <nav aria-label="Main" className="pb-safe pointer-events-none fixed inset-x-0 bottom-2 z-40 px-3 md:hidden">
+          <div className="pointer-events-auto mx-auto grid max-w-md grid-cols-5 items-end rounded-full border border-border/70 bg-background/85 px-2 py-1.5 backdrop-blur-xl">
+            {links.slice(0, 2).map((l) => (
+              <TabLink key={l.to} {...l} />
+            ))}
             <Link
               to="/trips/new"
               aria-label="Add trip"
-              className="mx-auto -mt-6 grid h-14 w-14 place-items-center rounded-full bg-primary text-primary-foreground shadow-sticker transition-transform active:scale-90"
+              className="mx-auto -mt-6 grid h-14 w-14 place-items-center rounded-full bg-primary text-primary-foreground transition-transform active:scale-90"
             >
               <Plus className="h-7 w-7" />
             </Link>
-            {links.filter((l) => l.to === "/rankings" || l.to === "/groups").map((l) => <TabLink key={l.to} {...l} />)}
+            {links
+              .filter((l) => l.to === "/rankings" || l.to === "/groups")
+              .map((l) => (
+                <TabLink key={l.to} {...l} />
+              ))}
           </div>
         </nav>
       )}

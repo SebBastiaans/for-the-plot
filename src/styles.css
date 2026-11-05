@@ -109,7 +109,6 @@
     oklch(0.985 0.004 120) 60%
   );
   --shadow-glow: 0 0 40px -10px color-mix(in oklab, var(--sage) 50%, transparent);
-  --shadow-sticker: 0 4px 0 0 color-mix(in oklab, var(--foreground) 12%, transparent);
 
   --chart-1: oklch(0.62 0.15 145);
   --chart-2: oklch(0.52 0.12 145);
@@ -161,7 +160,6 @@
     --map-style: dark;
     --gradient-hero: radial-gradient(ellipse at 50% 85%, oklch(0.25 0.03 240) 0%, oklch(0.15 0 0) 65%);
     --gradient-fade: linear-gradient(to bottom, transparent 0%, oklch(0.15 0 0 / 85%) 35%, oklch(0.15 0 0) 60%);
-    --shadow-sticker: 0 4px 0 0 oklch(0 0 0 / 50%);
     --sidebar: oklch(0.2 0 0);
     --sidebar-foreground: oklch(0.97 0 0);
     --sidebar-accent: oklch(0.26 0 0);
@@ -236,10 +234,6 @@
     opacity: 0.05;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
-}
-
-@utility shadow-sticker {
-  box-shadow: var(--shadow-sticker);
 }
 
 @utility pb-safe {
