@@ -27,3 +27,5 @@
 - [x] My trips list + trip detail page
 - [x] Globe landscape shading
 - [x] Floating notch header
+
+- [x] Smaller files: self-hosted WOFF2 fonts, photos/avatars compressed to WebP on upload, video size shown
