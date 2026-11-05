@@ -17,4 +17,4 @@
 - [x] Consistent keyboard focus
 - [x] Mobile-first on every page
 - [x] Personal trips with invites, inbox, group rules
-- [ ] Only people tagged on a trip can add photos/notes
+- [x] Only people tagged on a trip can add photos/notes

@@ -391,6 +391,7 @@ export type Database = {
       is_group_member: { Args: { _group: string }; Returns: boolean }
       is_group_owner: { Args: { _group: string }; Returns: boolean }
       is_trip_owner: { Args: { _trip: string }; Returns: boolean }
+      is_trip_participant: { Args: { _trip: string }; Returns: boolean }
       join_group: { Args: { _code: string }; Returns: string }
       respond_to_trip: {
         Args: { _accept: boolean; _trip: string }

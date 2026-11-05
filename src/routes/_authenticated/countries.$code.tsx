@@ -6,7 +6,7 @@ import { CalendarDays, MapPin, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { flagEmoji, getCountry } from "@/lib/countries";
-import { tripsQuery, uploadMedia, useProfilesMap, useAvatarUrls, useSignedUrls, type Trip } from "@/lib/data";
+import { participants, tripsQuery, uploadMedia, useProfilesMap, useAvatarUrls, useSignedUrls, type Trip } from "@/lib/data";
 import { isUpcoming, todayISO, tripDays } from "@/lib/stats";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -195,7 +195,7 @@ function TripSection({ trip: full, code }: { trip: Trip; code: string }) {
             })}
           </div>
         )}
-        <AddMedia trip={trip} />
+        {participants(trip).includes(userId) && <AddMedia trip={trip} />}
       </section>
 
       <section className="mt-10">
@@ -212,7 +212,7 @@ function TripSection({ trip: full, code }: { trip: Trip; code: string }) {
           ))}
           {notes.length === 0 && <li className="text-sm text-muted-foreground">No notes yet.</li>}
         </ol>
-        <AddNote trip={trip} />
+        {participants(trip).includes(userId) && <AddNote trip={trip} />}
       </section>
     </article>
   );
