@@ -76,7 +76,7 @@ function Index() {
   const names = Object.fromEntries((profiles.data ?? []).map((p) => [p.id, p.display_name]));
 
   return (
-    <main className="overflow-x-hidden">
+    <main className="overflow-x-clip">
       <section className="bg-hero relative h-[100svh] min-h-[680px] pt-16">
         <div className="relative z-10 mx-auto max-w-3xl px-5 pt-14 text-center">
           <p className="eyebrow">{group ? group.name : "Field log"} · {visitedCount} countries crossed off</p>
