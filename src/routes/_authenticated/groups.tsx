@@ -13,9 +13,9 @@ import { Input } from "@/components/ui/input";
 export const Route = createFileRoute("/_authenticated/groups")({
   head: () => ({
     meta: [
-      { title: "Groups — Crossed Off" },
+      { title: "Groups — For The Plot" },
       { name: "description", content: "Create a travel group and invite friends with a link." },
-      { property: "og:title", content: "Groups — Crossed Off" },
+      { property: "og:title", content: "Groups — For The Plot" },
       { property: "og:description", content: "Create a travel group and invite friends with a link." },
     ],
   }),

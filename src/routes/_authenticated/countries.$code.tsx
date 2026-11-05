@@ -11,9 +11,9 @@ export const Route = createFileRoute("/_authenticated/countries/$code")({
     const name = getCountry(params.code)?.name ?? "Country";
     return {
       meta: [
-        { title: `${name} — Crossed Off` },
+        { title: `${name} — For The Plot` },
         { name: "description", content: `Our trips to ${name}: dates, route, who went, photos, videos and stories.` },
-        { property: "og:title", content: `${name} — Crossed Off` },
+        { property: "og:title", content: `${name} — For The Plot` },
         { property: "og:description", content: `Our trips to ${name}.` },
       ],
     };

@@ -14,9 +14,9 @@ import { Label } from "@/components/ui/label";
 export const Route = createFileRoute("/_authenticated/profile")({
   head: () => ({
     meta: [
-      { title: "Your profile — Crossed Off" },
+      { title: "Your profile — For The Plot" },
       { name: "description", content: "Set your name and profile photo for the crew." },
-      { property: "og:title", content: "Your profile — Crossed Off" },
+      { property: "og:title", content: "Your profile — For The Plot" },
       { property: "og:description", content: "Set your name and profile photo for the crew." },
     ],
   }),

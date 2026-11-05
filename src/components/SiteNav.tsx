@@ -49,7 +49,7 @@ export function SiteNav() {
             <span className="grid h-8 w-8 place-items-center rounded-full bg-sage text-primary-foreground">
               <Globe2 className="h-5 w-5" />
             </span>
-            <span className="hidden min-[380px]:inline">Crossed Off</span>
+            <span className="hidden min-[380px]:inline">For The Plot</span>
           </Link>
           <nav className="hidden gap-1 text-sm font-bold md:flex">
             {links.map((l) => (

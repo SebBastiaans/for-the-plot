@@ -5,9 +5,9 @@ import { useGroup } from "@/lib/group";
 export const Route = createFileRoute("/_authenticated/trips/new")({
   head: () => ({
     meta: [
-      { title: "Add a trip — Crossed Off" },
+      { title: "Add a trip — For The Plot" },
       { name: "description", content: "Log a new trip: country, dates, route and who came along." },
-      { property: "og:title", content: "Add a trip — Crossed Off" },
+      { property: "og:title", content: "Add a trip — For The Plot" },
       { property: "og:description", content: "Log a new trip on our shared travel globe." },
     ],
   }),

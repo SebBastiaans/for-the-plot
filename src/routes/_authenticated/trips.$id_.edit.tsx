@@ -7,9 +7,9 @@ import { ME, tripsQuery } from "@/lib/data";
 export const Route = createFileRoute("/_authenticated/trips/$id_/edit")({
   head: () => ({
     meta: [
-      { title: "Edit trip — Crossed Off" },
+      { title: "Edit trip — For The Plot" },
       { name: "description", content: "Update the dates, route and crew of a trip." },
-      { property: "og:title", content: "Edit trip — Crossed Off" },
+      { property: "og:title", content: "Edit trip — For The Plot" },
       { property: "og:description", content: "Update a trip on our shared travel globe." },
     ],
   }),
