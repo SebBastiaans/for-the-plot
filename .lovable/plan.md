@@ -1,11 +1,12 @@
-# Classic atlas globe, borders flush
+# Globe like your example map, borders flush, pause on grab
 
 ## What changes
-1. **Classic atlas map**: light blue sea, cream land, and each country filled with a soft pastel color (sand, peach, sage) so neighbours differ, like a school atlas. No terrain patches or snow blobs. Thin grey borders, labels stay. Visited countries stay green and planned amber on top. Dark mode uses the same idea with muted, darker tones.
-2. **Borders flush with the globe**: country outlines and colors sit directly on the surface, with no floating gap.
-3. **Pause while grabbing**: the globe stops spinning while you hold it, stays still for 5 seconds after you let go, then resumes spinning.
+1. **Map look from your example**: bright blue ocean (lighter near the coast), fresh green land with soft hill and mountain shading, pale grey-white for deserts and high plateaus (Tibet, Iran, Sahara), small blue lakes, and thin lavender-grey country borders. Country names stay. Visited countries keep a green tint plus pulsing rings; planned stay amber. Dark mode gets a dimmed version of the same map.
+2. **Borders flush with the globe**: outlines and colors sit directly on the surface, no floating gap.
+3. **Pause while grabbing**: the globe stops while you hold it, stays still for 5 seconds after you let go, then spins again.
+4. The whole map stays light (target under ~500 KB) and sharp.
 
 ## Technical details
-- Regenerate `public/textures/globe-{light,dark}.webp` (4096x2048) by rasterizing `countries.geojson` with a 4-5 color pastel palette (greedy neighbour coloring), flat ocean `#bfe3f5`; bump cache version.
-- `Globe.tsx`: polygon altitude to ~0.001 for all countries (visited too), no side walls; keep hover without lift.
-- Controls `start` event: `autoRotate=false`, clear timer; `end` event: 5000ms timeout then `autoRotate=true`; cleanup on unmount.
+- Regenerate `public/textures/globe-{light,dark}.webp` at 4096x2048: land mask from `countries.geojson` (no gaps), terrain shading from Natural Earth HYP_50M (hillshade from luminance), recolor: vegetation → greens, arid/high → pale grey; ocean radial blue with lighter coastal band (distance blur of land mask); lakes from HYP blue pixels inside land. Bump cache version.
+- `Globe.tsx`: polygon altitude ~0.001 for all, stroke color lavender-grey token, no side walls.
+- OrbitControls `start` → `autoRotate=false` + clear timer; `end` → 5000ms timeout → `autoRotate=true`; cleanup on unmount.
