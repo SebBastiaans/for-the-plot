@@ -18,9 +18,9 @@
 - [x] Mobile-first on every page
 - [x] Personal trips with invites, inbox, group rules
 - [x] Only people tagged on a trip can add photos/notes
-- [ ] Pre-fill arrival day from previous place
-- [ ] Fix drifting map pins
-- [ ] Camera-roll photos on trips + trip form
-- [ ] Auto-tag photos by time/place; bulk import with suggested trips
-- [ ] Globe keeps spinning on hover
-- [ ] Clear loading / error / success states
+- [x] Pre-fill arrival day from previous place
+- [x] Fix drifting map pins
+- [x] Camera-roll photos on trips + trip form
+- [x] Auto-tag photos by time/place; bulk import with suggested trips
+- [x] Globe keeps spinning on hover
+- [x] Clear loading / error / success states

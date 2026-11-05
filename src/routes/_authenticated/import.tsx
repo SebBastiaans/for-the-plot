@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -68,7 +68,7 @@ function ImportPage() {
   }, [items, trips]);
 
   // look up the country of each suggestion from its first photo with a location
-  useMemo(() => {
+  useEffect(() => {
     for (const s of suggestions) {
       const key = s.start;
       if (key in countries) continue;
