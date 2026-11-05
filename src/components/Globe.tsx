@@ -91,7 +91,7 @@ export default function Globe({
       const dark = window.matchMedia("(prefers-color-scheme: dark)").matches;
       const map = new THREE.TextureLoader().load(`/textures/globe-${dark ? "dark" : "light"}.jpg`);
       map.colorSpace = THREE.SRGBColorSpace;
-      return new THREE.MeshPhongMaterial({ map, color: "#ffffff", emissive: "#ffffff", emissiveMap: map, emissiveIntensity: 0.35, shininess: 2 });
+      return new THREE.MeshPhongMaterial({ map, color: "#ffffff", emissive: "#ffffff", emissiveMap: map, emissiveIntensity: dark ? 0.35 : 0.05, shininess: 0 });
     },
     [colors.ocean],
   );
