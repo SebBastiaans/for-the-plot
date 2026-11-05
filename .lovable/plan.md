@@ -20,7 +20,13 @@ Snapchat and Instagram don't let other apps read your stories, so a direct sync 
 ## 5. Globe keeps spinning on hover
 Pointing at a country still highlights it and shows its name, but the globe keeps turning.
 
+## 6. Clear loading, error and success messages
+- Every page shows a friendly loading placeholder while data comes in, instead of a blank screen.
+- If something fails to load, a clear message with a "Try again" button.
+- Every save, upload, accept/decline, join and delete shows "Saving…" on the button, then a success or error message in plain words.
+
 ## Technical details
+- Shared `LoadingState` / `ErrorState` components used on all pages' queries; mutations use `toast.promise`-style pending/success/error and disabled buttons with spinners.
 - Globe: remove the auto-rotate pause on polygon hover.
 - StopDays/TripForm: on adding a stop, set `arrived_on` = previous stop's `left_on` ?? trip start (only when within trip range).
 - PlacePickerMap: marker element = wrapper div; apply scale to an inner span; drop `transition-transform` on the wrapper.
