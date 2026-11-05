@@ -5,3 +5,6 @@
 - [x] Rankings & stats page
 - [x] Upcoming trips page
 - [x] Accounts, add/edit trips, profiles
+- [x] Bigger half-globe hero + how-it-works section, no zoom on scroll
+- [x] Black & white base colors with green accents
+- [x] Groups with invite links; separate globe per group

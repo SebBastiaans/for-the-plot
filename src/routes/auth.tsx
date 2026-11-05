@@ -30,7 +30,12 @@ function AuthPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (session) navigate({ to: "/" });
+    if (!session) return;
+    const invite = sessionStorage.getItem("crossed-off:invite");
+    if (invite) {
+      sessionStorage.removeItem("crossed-off:invite");
+      navigate({ to: "/join/$code", params: { code: invite } });
+    } else navigate({ to: "/" });
   }, [session, navigate]);
 
   async function submit(e: React.FormEvent) {

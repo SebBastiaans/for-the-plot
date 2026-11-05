@@ -1,3 +1,4 @@
+import { useGroup } from "@/lib/group";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { TripForm } from "@/components/TripForm";
@@ -18,7 +19,8 @@ export const Route = createFileRoute("/_authenticated/trips/$id/edit")({
 function EditTrip() {
   const { userId } = Route.useRouteContext();
   const { id } = Route.useParams();
-  const { data, isLoading } = useQuery(tripsQuery);
+  const { groupId } = useGroup();
+  const { data, isLoading } = useQuery(tripsQuery(groupId));
   const trip = data?.find((t) => t.id === id);
   return (
     <main className="mx-auto max-w-2xl px-5 pb-20 pt-28">

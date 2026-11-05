@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { profilesQuery } from "@/lib/data";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,8 +23,10 @@ export const Route = createFileRoute("/_authenticated/profile")({
 function Profile() {
   const { userId } = Route.useRouteContext();
   const qc = useQueryClient();
-  const { data } = useQuery(profilesQuery);
-  const me = data?.find((p) => p.id === userId);
+  const { data: me } = useQuery({
+    queryKey: ["profiles", "me", userId],
+    queryFn: async () => (await supabase.from("profiles").select("*").eq("id", userId).single()).data,
+  });
   const [name, setName] = useState("");
   const [avatar, setAvatar] = useState("");
 

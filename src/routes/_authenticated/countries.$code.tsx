@@ -1,3 +1,4 @@
+import { useGroup } from "@/lib/group";
 import { ClientOnly, createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { lazy, Suspense, useState } from "react";
@@ -37,7 +38,8 @@ function fmt(d: string | null) {
 function CountryPage() {
   const { code } = Route.useParams();
   const country = getCountry(code);
-  const { data, isLoading } = useQuery(tripsQuery);
+  const { groupId } = useGroup();
+  const { data, isLoading } = useQuery(tripsQuery(groupId));
   const trips = (data ?? []).filter((t) => t.country_code === code.toUpperCase());
 
   return (
@@ -67,7 +69,8 @@ function CountryPage() {
 
 function TripSection({ trip }: { trip: Trip }) {
   const { userId } = Route.useRouteContext();
-  const profiles = useProfilesMap();
+  const { groupId } = useGroup();
+  const profiles = useProfilesMap(groupId);
   const upcoming = isUpcoming(trip, todayISO());
   const stopName = (id: string | null) => trip.trip_stops.find((s) => s.id === id)?.name;
   const [filter, setFilter] = useState<string>("all");

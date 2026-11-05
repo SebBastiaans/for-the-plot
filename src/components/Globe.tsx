@@ -28,9 +28,9 @@ export default function Globe({
     () => ({
       visited: cssVar("--globe-visited", "#a0c49d"),
       planned: cssVar("--globe-planned", "#e0b45c"),
-      dim: cssVar("--globe-dim", "rgba(160,196,157,0.3)"),
-      surface: cssVar("--globe-surface", "#10261b"),
-      atmosphere: cssVar("--globe-atmosphere", "#a0c49d"),
+      dim: cssVar("--globe-dim", "rgba(255,255,255,0.22)"),
+      surface: cssVar("--globe-surface", "#161616"),
+      atmosphere: cssVar("--globe-atmosphere", "#d9d9d9"),
     }),
     [],
   );
@@ -51,7 +51,13 @@ export default function Globe({
     if (!el) return;
     const ro = new ResizeObserver(([e]) => e && setSize({ w: e.contentRect.width, h: e.contentRect.height }));
     ro.observe(el);
-    return () => ro.disconnect();
+    // Let the mouse wheel scroll the page instead of zooming the globe.
+    const stop = (e: WheelEvent) => e.stopPropagation();
+    el.addEventListener("wheel", stop, { capture: true });
+    return () => {
+      ro.disconnect();
+      el.removeEventListener("wheel", stop, { capture: true });
+    };
   }, []);
 
   useEffect(() => {
@@ -60,10 +66,13 @@ export default function Globe({
     const c = g.controls();
     c.autoRotate = !hover;
     c.autoRotateSpeed = 0.5;
-    c.enableZoom = true;
-    c.minDistance = 180;
-    c.maxDistance = 500;
+    c.enableZoom = false;
   }, [hover, features]);
+
+  // fixed camera distance so the globe fills its box and never changes size
+  useEffect(() => {
+    ref.current?.pointOfView({ lat: 25, lng: 10, altitude: 1.55 }, 0);
+  }, [features]);
 
   return (
     <div ref={wrap} className="h-full w-full cursor-grab active:cursor-grabbing">
@@ -75,7 +84,7 @@ export default function Globe({
         globeMaterial={material}
         showAtmosphere
         atmosphereColor={colors.atmosphere}
-        atmosphereAltitude={0.18}
+        atmosphereAltitude={0.12}
         hexPolygonsData={features}
         hexPolygonResolution={3}
         hexPolygonMargin={0.55}
@@ -97,7 +106,7 @@ export default function Globe({
               ? `${s.trips} trip${s.trips === 1 ? "" : "s"} · click to open`
               : "Planned trip"
             : "Not visited yet";
-          return `<div style="font-family:Manrope,sans-serif;background:rgba(16,38,27,.92);border:1px solid rgba(160,196,157,.35);padding:6px 10px;border-radius:8px;color:#f1efe2"><b>${p.NAME}</b><br/><span style="opacity:.7;font-size:12px">${sub}</span></div>`;
+          return `<div style="font-family:Manrope,sans-serif;background:rgba(20,20,20,.94);border:1px solid rgba(160,196,157,.45);padding:6px 10px;border-radius:8px;color:#f1efe2"><b>${p.NAME}</b><br/><span style="opacity:.7;font-size:12px">${sub}</span></div>`;
         }}
         onHexPolygonHover={(f: object | null) => setHover(f ? (f as Feature).properties.ISO_A2 : null)}
         onHexPolygonClick={(f: object) => {

@@ -1,3 +1,4 @@
+import { useGroup, NeedGroup } from "@/lib/group";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -22,9 +23,10 @@ export const Route = createFileRoute("/_authenticated/upcoming")({
 function Upcoming() {
   const { userId } = Route.useRouteContext();
   const qc = useQueryClient();
-  const profiles = useProfilesMap();
+  const { groupId, loading } = useGroup();
+  const profiles = useProfilesMap(groupId);
   const today = todayISO();
-  const { data, isLoading } = useQuery(tripsQuery);
+  const { data, isLoading } = useQuery(tripsQuery(groupId));
   const trips = (data ?? []).filter((t) => isUpcoming(t, today)).sort((a, b) => a.start_date.localeCompare(b.start_date));
 
   async function toggle(tripId: string, joined: boolean) {
@@ -39,7 +41,7 @@ function Upcoming() {
     <main className="mx-auto max-w-4xl px-5 pb-24 pt-28">
       <p className="eyebrow">Next up</p>
       <h1 className="mt-2 text-5xl">Upcoming trips</h1>
-      {isLoading ? <p className="mt-8 text-muted-foreground">Loading…</p> : trips.length === 0 ? (
+      {!loading && !groupId ? <div className="mt-10"><NeedGroup /></div> : isLoading ? <p className="mt-8 text-muted-foreground">Loading…</p> : trips.length === 0 ? (
         <p className="mt-8 text-muted-foreground">
           Nothing planned yet. <Link to="/trips/new" className="text-planned underline">Plan a trip</Link> with a future start date.
         </p>
