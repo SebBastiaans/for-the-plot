@@ -15,12 +15,14 @@ export type Trip = Tables<"trips"> & {
 
 export const MEDIA_BUCKET = "trip-media";
 
-export const tripsQuery = queryOptions({
-  queryKey: ["trips"],
+export const tripsQuery = (groupId: string | null) => queryOptions({
+  queryKey: ["trips", groupId],
+  enabled: !!groupId,
   queryFn: async (): Promise<Trip[]> => {
     const { data, error } = await supabase
       .from("trips")
       .select("*, trip_stops(*), trip_members(user_id), trip_media(*), trip_notes(*)")
+      .eq("group_id", groupId!)
       .order("start_date", { ascending: false });
     if (error) throw error;
     return (data ?? []).map((t) => ({
@@ -30,17 +32,22 @@ export const tripsQuery = queryOptions({
   },
 });
 
-export const profilesQuery = queryOptions({
-  queryKey: ["profiles"],
+/** Profiles of the members of a group. */
+export const profilesQuery = (groupId: string | null) => queryOptions({
+  queryKey: ["profiles", groupId],
+  enabled: !!groupId,
   queryFn: async (): Promise<Profile[]> => {
-    const { data, error } = await supabase.from("profiles").select("*").order("display_name");
+    const { data, error } = await supabase.from("group_members").select("profiles(*)").eq("group_id", groupId!);
     if (error) throw error;
-    return data ?? [];
+    return (data ?? [])
+      .map((r) => r.profiles as Profile | null)
+      .filter((p): p is Profile => !!p)
+      .sort((a, b) => a.display_name.localeCompare(b.display_name));
   },
 });
 
-export function useProfilesMap() {
-  const { data = [] } = useQuery(profilesQuery);
+export function useProfilesMap(groupId: string | null) {
+  const { data = [] } = useQuery(profilesQuery(groupId));
   return Object.fromEntries(data.map((p) => [p.id, p])) as Record<string, Profile>;
 }
 
