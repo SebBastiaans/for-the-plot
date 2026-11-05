@@ -1,5 +1,5 @@
 import { useGroup, NeedGroup } from "@/lib/group";
-import { ErrorState, LoadingState } from "@/components/States";
+import { ErrorState, LoadingState, errText } from "@/components/States";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -34,7 +34,7 @@ function Upcoming() {
     const { error } = joined
       ? await supabase.from("trip_members").delete().eq("trip_id", tripId).eq("user_id", userId)
       : await supabase.from("trip_members").insert({ trip_id: tripId, user_id: userId });
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(errText(error)); return; }
     qc.invalidateQueries({ queryKey: ["trips"] });
   }
 

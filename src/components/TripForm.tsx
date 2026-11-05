@@ -1,4 +1,5 @@
 import { Suspense, lazy, useState } from "react";
+import { errText } from "@/components/States";
 import { ClientOnly, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowDown, ArrowUp, Search, X } from "lucide-react";
@@ -50,7 +51,7 @@ export function TripForm({ userId, trip }: { userId: string; trip?: Trip }) {
     try {
       setResults(await geocode(q, country || undefined));
     } catch (e) {
-      toast.error((e as Error).message);
+      toast.error(errText(e));
     }
   }
 
@@ -114,7 +115,7 @@ export function TripForm({ userId, trip }: { userId: string; trip?: Trip }) {
       toast.success(added.length > (trip ? 0 : 1) ? "Trip saved, invites sent" : "Trip saved");
       navigate({ to: "/countries/$code", params: { code: c.code } });
     } catch (err) {
-      toast.error((err as Error).message);
+      toast.error(errText(err));
     } finally {
       setBusy(false);
     }
@@ -123,7 +124,7 @@ export function TripForm({ userId, trip }: { userId: string; trip?: Trip }) {
   async function remove() {
     if (!trip || !confirm("Delete this trip?")) return;
     const { error } = await supabase.from("trips").delete().eq("id", trip.id);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(errText(error)); return; }
     await qc.invalidateQueries({ queryKey: ["trips"] });
     navigate({ to: "/" });
   }

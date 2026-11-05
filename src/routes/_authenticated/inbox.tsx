@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ErrorState, LoadingState } from "@/components/States";
+import { ErrorState, LoadingState, errText } from "@/components/States";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -29,7 +29,7 @@ function Inbox() {
 
   async function respond(tripId: string, accept: boolean) {
     const { error } = await supabase.rpc("respond_to_trip", { _trip: tripId, _accept: accept });
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(errText(error)); return; }
     toast.success(accept ? "Added to your trips" : "Invite declined");
     qc.invalidateQueries({ queryKey: ["invites"] });
     qc.invalidateQueries({ queryKey: ["trips"] });
