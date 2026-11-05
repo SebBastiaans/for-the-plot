@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { errText } from "@/components/States";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -91,7 +91,8 @@ function GroupCard({ group, active, onSelect }: { group: Group; active: boolean;
   return (
     <section className={`rounded-2xl border bg-card p-6 ${active ? "border-sage" : "border-border"}`}>
       <div className="flex flex-wrap items-center gap-3">
-        <h2 className="text-2xl">{group.name}</h2>
+        <h2 className="text-2xl"><Link to="/groups/$id" params={{ id: group.id }} className="hover:underline">{group.name}</Link></h2>
+        <Button asChild size="sm" variant="secondary"><Link to="/groups/$id" params={{ id: group.id }}>See trips</Link></Button>
         {active ? <span className="rounded-full bg-sage px-2.5 py-0.5 text-xs font-semibold text-primary-foreground">Viewing</span> : (
           <Button size="sm" variant="outline" onClick={onSelect}>Switch to this group</Button>
         )}
