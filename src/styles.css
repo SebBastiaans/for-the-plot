@@ -85,7 +85,8 @@
   --globe-visited: #4fbf63;
   --globe-planned: #f2a93b;
   --globe-stroke: #d9ffd9;
-  --globe-atmosphere: #9cd3ff;
+  --globe-ocean: #cfe3f2;
+  --globe-land: #3d5a46;
   --map-line: #2f9e47;
   --map-style: light;
 
@@ -136,7 +137,8 @@
     --globe-visited: #7ee08a;
     --globe-planned: #f5bb55;
     --globe-stroke: #e8ffe8;
-    --globe-atmosphere: #7fb8ff;
+    --globe-ocean: #14263a;
+    --globe-land: #e6efe4;
     --map-line: #7ee08a;
     --map-style: dark;
     --gradient-hero: radial-gradient(ellipse at 50% 85%, oklch(0.25 0.03 240) 0%, oklch(0.15 0 0) 65%);

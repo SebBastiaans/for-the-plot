@@ -49,7 +49,7 @@ function Profile() {
       const { error } = await supabase.from("profiles").update({ avatar_url: path }).eq("id", userId);
       if (error) throw error;
       await qc.invalidateQueries({ queryKey: ["profiles"] });
-      toast.success("Looking good! 📸");
+      toast.success("Photo updated");
     } catch (e) {
       toast.error((e as Error).message);
       setPreview(null);
