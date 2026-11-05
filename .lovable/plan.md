@@ -9,7 +9,11 @@
 ## Globe with a bit of landscape
 The land gets soft, flat colour shading that follows the real landscape: light sandy tones for deserts, deeper green for forests, white for ice and snow, and gentle shading on mountain ranges. It keeps the same simple map style (flat colours, thin borders, country names). Visited countries stay bright green and planned trips amber, laid over the landscape.
 
+## Floating header
+The top bar becomes a rounded pill that floats a little below the top of the screen, centered, with a soft shadow and slightly see-through blurred background, like a phone notch or Dynamic Island. It holds the logo, group switcher, bell and profile. On phones it stays compact; the bottom tab bar gets the same floating pill look.
+
 ## Technical details
+- SiteNav: `fixed top-3 inset-x-0 mx-auto w-fit max-w-[calc(100%-1.5rem)] rounded-full` with backdrop blur and sticker shadow; same treatment for the bottom bar (above safe area).
 - Globe: use a small stylized land-cover/relief texture (flat-toned, map style, light and dark versions, bundled in the project) as the globe surface, with country caps made semi-transparent so the terrain shows through; visited/planned keep solid accent caps. Keep the ocean flat blue.
 - New routes: `src/routes/_authenticated/trips.index.tsx` (`/trips`) and `src/routes/_authenticated/trips.$id.tsx` (`/trips/$id`). Edit page becomes `trips.$id_.edit.tsx`-safe: since `trips.$id.edit.tsx` would nest under `trips.$id.tsx`, rename it to `trips_.$id.edit.tsx` style un-nesting (keep URL `/trips/$id/edit`).
 - Move `TripSection`, `AddMedia`, `AddNote`, `DeleteMedia`, `PlaceTimeFields` out of the country route into `src/components/TripDetails.tsx` with an optional `code` filter (country page shows that country's stops; detail page shows all).
