@@ -8,6 +8,7 @@ import { COUNTRIES, flagEmoji, getCountry } from "@/lib/countries";
 import { stopDatesError } from "@/lib/stats";
 import { ME, geocode, profilesQuery, type GeoResult, type Trip } from "@/lib/data";
 import { Button } from "@/components/ui/button";
+import { StopDays } from "@/components/StopDays";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -221,6 +222,10 @@ export function TripForm({ userId, trip }: { userId: string; trip?: Trip }) {
                 <Button type="button" size="icon" variant="ghost" aria-label="Move down" onClick={() => move(i, 1)}><ArrowDown className="h-4 w-4" /></Button>
                 <Button type="button" size="icon" variant="ghost" aria-label="Remove place" onClick={() => setStops(stops.filter((_, j) => j !== i))}><X className="h-4 w-4" /></Button>
               </div>
+              {start && end && end >= start ? (
+                <StopDays start={start} end={end} from={s.arrived_on ?? null} to={s.left_on ?? null}
+                  onChange={(a, l) => setStops(stops.map((x, j) => (j === i ? { ...x, arrived_on: a, left_on: l } : x)))} />
+              ) : (
               <div className="mt-2 flex flex-wrap items-center gap-2 pl-8 text-xs text-muted-foreground">
                 <label className="flex items-center gap-1.5">Arrived
                   <Input type="date" className="h-8 w-auto" min={start || undefined} max={end || undefined} value={s.arrived_on ?? ""}
@@ -232,6 +237,7 @@ export function TripForm({ userId, trip }: { userId: string; trip?: Trip }) {
                 </label>
                 <span>optional — fill in later</span>
               </div>
+              )}
             </li>
           ))}
         </ol>
