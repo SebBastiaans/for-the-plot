@@ -78,6 +78,7 @@ export default function Globe({
     c.autoRotate = true;
     c.autoRotateSpeed = 0.5;
     c.enableZoom = false;
+    g.renderer().setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   }, [hover, features]);
 
   // fixed camera distance so the globe fills its box and never changes size
