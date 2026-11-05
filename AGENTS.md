@@ -41,3 +41,4 @@ use the editor.
 - Avatars live in the private `avatars` bucket under `<userId>/…`; `profiles.avatar_url` stores the path, resolved with `useAvatarUrls`.
 
 - Trips belong to their creator (`trips.group_id` deprecated). Tagged people are `trip_members` rows: an insert trigger sets status (pending, or accepted for the creator or someone joining themselves), and invitees answer through `respond_to_trip`. A group shows the trips that pass its rule (`trip_counts_for_group`, mirrored by `qualifiesForGroup`), read through `group_trip_ids`. The "me" scope shows your own trips. Only participants (`is_trip_participant`) can add media and notes. Why: trips are personal and groups are derived from them.
+- Photo time/place (EXIF via exifr, read in the browser) auto-tags media to a stop/day (`src/lib/photos.ts`, `addMediaToTrip`); /import matches photos to trips by date and suggests new trips. Why: Instagram/Snapchat offer no API to read stories.
