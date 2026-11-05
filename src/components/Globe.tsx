@@ -78,7 +78,7 @@ export default function Globe({
         globeMaterial={material}
         showAtmosphere
         atmosphereColor={colors.atmosphere}
-        atmosphereAltitude={0.18}
+        atmosphereAltitude={0.12}
         hexPolygonsData={features}
         hexPolygonResolution={3}
         hexPolygonMargin={0.55}
