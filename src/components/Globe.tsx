@@ -81,6 +81,19 @@ export default function Globe({
     g.renderer().setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   }, [hover, features]);
 
+  // stop spinning while grabbed, resume 5s after letting go
+  useEffect(() => {
+    const g = ref.current;
+    if (!g) return;
+    const c = g.controls();
+    let t: ReturnType<typeof setTimeout> | undefined;
+    const start = () => { clearTimeout(t); c.autoRotate = false; };
+    const end = () => { clearTimeout(t); t = setTimeout(() => (c.autoRotate = true), 5000); };
+    c.addEventListener("start", start);
+    c.addEventListener("end", end);
+    return () => { clearTimeout(t); c.removeEventListener("start", start); c.removeEventListener("end", end); };
+  }, [features]);
+
   // fixed camera distance so the globe fills its box and never changes size
   useEffect(() => {
     ref.current?.pointOfView({ lat: 25, lng: 10, altitude: 1.55 }, 0);
@@ -95,7 +108,7 @@ export default function Globe({
       map.anisotropy = 16;
       map.generateMipmaps = true;
       map.minFilter = THREE.LinearMipmapLinearFilter;
-      return new THREE.MeshPhongMaterial({ map, color: "#ffffff", emissive: "#ffffff", emissiveMap: map, emissiveIntensity: dark ? 0.35 : 0.05, shininess: 0 });
+      return new THREE.MeshPhongMaterial({ map, color: "#ffffff", emissive: "#ffffff", emissiveMap: map, emissiveIntensity: dark ? 0.35 : 0.25, shininess: 0 });
     },
     [colors.ocean],
   );
@@ -171,7 +184,7 @@ export default function Globe({
         }}
         polygonSideColor={(f: object) => {
           const c = statusColor((f as Feature).properties.ISO_A2);
-          return c ? alpha(c, 0.6) : "rgba(0,0,0,0)";
+          return c ? alpha(c, 0.45) : "rgba(0,0,0,0)";
         }}
         polygonStrokeColor={(f: object) => {
           const code = (f as Feature).properties.ISO_A2;

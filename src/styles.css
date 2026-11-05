@@ -87,7 +87,7 @@
   --globe-stroke: #d9ffd9;
   --globe-ocean: #7cc0ef;
   --globe-land: #cfe6bf;
-  --globe-border: #a9b9a0;
+  --globe-border: #a99fc4;
   --globe-label: #2b3a2e;
   --map-line: #2f9e47;
   --map-style: light;
@@ -141,7 +141,7 @@
     --globe-stroke: #e8ffe8;
     --globe-ocean: #1d4a72;
     --globe-land: #3f5e45;
-    --globe-border: #6f8a73;
+    --globe-border: #7a7396;
     --globe-label: #eef5ec;
     --map-line: #7ee08a;
     --map-style: dark;
