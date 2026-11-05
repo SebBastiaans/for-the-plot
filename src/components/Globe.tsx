@@ -1,14 +1,30 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import GlobeGL, { type GlobeMethods } from "react-globe.gl";
-import * as THREE from "three";
 
 export type CountryStatus = { status: "visited" | "planned"; trips: number };
 
 type Feature = { properties: { ISO_A2: string; NAME: string }; geometry: unknown };
 
-function cssVar(name: string, fallback: string) {
-  const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-  return v || fallback;
+const EARTH_IMG = "https://unpkg.com/three-globe@2.41.12/example/img/earth-blue-marble.jpg";
+const BUMP_IMG = "https://unpkg.com/three-globe@2.41.12/example/img/earth-topology.png";
+
+function readColors() {
+  const css = getComputedStyle(document.documentElement);
+  const v = (n: string, f: string) => css.getPropertyValue(n).trim() || f;
+  return {
+    visited: v("--globe-visited", "#7ee08a"),
+    planned: v("--globe-planned", "#f5bb55"),
+    stroke: v("--globe-stroke", "#e8ffe8"),
+    atmosphere: v("--globe-atmosphere", "#7fb8ff"),
+  };
+}
+
+/** hex (#rrggbb) + alpha → rgba() string */
+function alpha(hex: string, a: number) {
+  const h = hex.replace("#", "");
+  if (h.length !== 6) return hex;
+  const n = parseInt(h, 16);
+  return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
 }
 
 export default function Globe({
@@ -23,22 +39,15 @@ export default function Globe({
   const [features, setFeatures] = useState<Feature[]>([]);
   const [size, setSize] = useState({ w: 800, h: 700 });
   const [hover, setHover] = useState<string | null>(null);
+  const [colors, setColors] = useState(readColors);
 
-  const colors = useMemo(
-    () => ({
-      visited: cssVar("--globe-visited", "#a0c49d"),
-      planned: cssVar("--globe-planned", "#e0b45c"),
-      dim: cssVar("--globe-dim", "rgba(255,255,255,0.22)"),
-      surface: cssVar("--globe-surface", "#161616"),
-      atmosphere: cssVar("--globe-atmosphere", "#d9d9d9"),
-    }),
-    [],
-  );
-
-  const material = useMemo(
-    () => new THREE.MeshPhongMaterial({ color: colors.surface, emissive: colors.surface, emissiveIntensity: 0.4, shininess: 0 }),
-    [colors],
-  );
+  // follow the device's light/dark switch live
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    const on = () => setColors(readColors());
+    mq.addEventListener("change", on);
+    return () => mq.removeEventListener("change", on);
+  }, []);
 
   useEffect(() => {
     fetch("/data/countries.geojson")
@@ -74,42 +83,60 @@ export default function Globe({
     ref.current?.pointOfView({ lat: 25, lng: 10, altitude: 1.55 }, 0);
   }, [features]);
 
+  const statusColor = (code: string) => {
+    const s = statuses[code];
+    return s ? (s.status === "visited" ? colors.visited : colors.planned) : null;
+  };
+
   return (
-    <div ref={wrap} className="h-full w-full cursor-grab active:cursor-grabbing">
+    <div
+      ref={wrap}
+      tabIndex={0}
+      aria-label="Interactive globe of the countries we've visited — drag to spin"
+      className="globe-touch h-full w-full cursor-grab rounded-full active:cursor-grabbing"
+    >
       <GlobeGL
         ref={ref}
         width={size.w}
         height={size.h}
         backgroundColor="rgba(0,0,0,0)"
-        globeMaterial={material}
+        globeImageUrl={EARTH_IMG}
+        bumpImageUrl={BUMP_IMG}
         showAtmosphere
         atmosphereColor={colors.atmosphere}
-        atmosphereAltitude={0.12}
-        hexPolygonsData={features}
-        hexPolygonResolution={3}
-        hexPolygonMargin={0.55}
-        hexPolygonUseDots
-        hexPolygonAltitude={(f: object) => {
+        atmosphereAltitude={0.18}
+        polygonsData={features}
+        polygonsTransitionDuration={200}
+        polygonAltitude={(f: object) => {
           const code = (f as Feature).properties.ISO_A2;
-          return statuses[code] ? (code === hover ? 0.03 : 0.015) : 0.005;
+          return code === hover ? 0.03 : statuses[code] ? 0.012 : 0.004;
         }}
-        hexPolygonColor={(f: object) => {
-          const s = statuses[(f as Feature).properties.ISO_A2];
-          if (!s) return colors.dim;
-          return s.status === "visited" ? colors.visited : colors.planned;
+        polygonCapColor={(f: object) => {
+          const code = (f as Feature).properties.ISO_A2;
+          const c = statusColor(code);
+          if (!c) return code === hover ? "rgba(255,255,255,0.18)" : "rgba(0,0,0,0)";
+          return alpha(c, code === hover ? 0.75 : 0.5);
         }}
-        hexPolygonLabel={(f: object) => {
+        polygonSideColor={(f: object) => {
+          const c = statusColor((f as Feature).properties.ISO_A2);
+          return c ? alpha(c, 0.35) : "rgba(0,0,0,0)";
+        }}
+        polygonStrokeColor={(f: object) => {
+          const code = (f as Feature).properties.ISO_A2;
+          return statuses[code] ? colors.stroke : "rgba(255,255,255,0.18)";
+        }}
+        polygonLabel={(f: object) => {
           const p = (f as Feature).properties;
           const s = statuses[p.ISO_A2];
           const sub = s
             ? s.status === "visited"
-              ? `${s.trips} trip${s.trips === 1 ? "" : "s"} · click to open`
-              : "Planned trip"
-            : "Not visited yet";
-          return `<div style="font-family:Manrope,sans-serif;background:rgba(20,20,20,.94);border:1px solid rgba(160,196,157,.45);padding:6px 10px;border-radius:8px;color:#f1efe2"><b>${p.NAME}</b><br/><span style="opacity:.7;font-size:12px">${sub}</span></div>`;
+              ? `${s.trips} trip${s.trips === 1 ? "" : "s"} · tap to open`
+              : "Planned trip ✈️"
+            : "Not crossed off yet";
+          return `<div style="font-family:Nunito,sans-serif;background:rgba(20,20,20,.92);padding:6px 12px;border-radius:14px;color:#fff;font-weight:700">${p.NAME}<br/><span style="opacity:.75;font-size:12px;font-weight:600">${sub}</span></div>`;
         }}
-        onHexPolygonHover={(f: object | null) => setHover(f ? (f as Feature).properties.ISO_A2 : null)}
-        onHexPolygonClick={(f: object) => {
+        onPolygonHover={(f: object | null) => setHover(f ? (f as Feature).properties.ISO_A2 : null)}
+        onPolygonClick={(f: object) => {
           const code = (f as Feature).properties.ISO_A2;
           if (statuses[code]) onCountryClick(code);
         }}

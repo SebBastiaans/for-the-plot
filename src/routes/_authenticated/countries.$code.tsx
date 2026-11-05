@@ -6,7 +6,7 @@ import { CalendarDays, MapPin, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { flagEmoji, getCountry } from "@/lib/countries";
-import { tripsQuery, uploadMedia, useProfilesMap, useSignedUrls, type Trip } from "@/lib/data";
+import { tripsQuery, uploadMedia, useProfilesMap, useAvatarUrls, useSignedUrls, type Trip } from "@/lib/data";
 import { isUpcoming, todayISO, tripDays } from "@/lib/stats";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -40,16 +40,16 @@ function CountryPage() {
   const country = getCountry(code);
   const { groupId } = useGroup();
   const { data, isLoading } = useQuery(tripsQuery(groupId));
-  const trips = (data ?? []).filter((t) => t.country_code === code.toUpperCase());
+  const trips = (data ?? []).filter((t) => t.countries.some((c) => c.code === code.toUpperCase()));
 
   return (
-    <main className="mx-auto max-w-6xl px-5 pb-24 pt-28">
+    <main className="mx-auto max-w-6xl px-4 pb-28 pt-20 sm:px-5 sm:pt-28 md:pb-24">
       <Link to="/" className="eyebrow hover:text-foreground">← Back to globe</Link>
       <div className="mt-4 flex items-center gap-4">
         <span className="text-6xl">{flagEmoji(code)}</span>
         <div>
           <p className="eyebrow">{country?.continent}</p>
-          <h1 className="text-5xl">{country?.name ?? code}</h1>
+          <h1 className="text-4xl sm:text-5xl">{country?.name ?? code}</h1>
         </div>
       </div>
       {isLoading ? (
@@ -60,17 +60,21 @@ function CountryPage() {
         </p>
       ) : (
         <div className="mt-12 space-y-20">
-          {trips.map((t) => <TripSection key={t.id} trip={t} />)}
+          {trips.map((t) => <TripSection key={t.id} trip={t} code={code.toUpperCase()} />)}
         </div>
       )}
     </main>
   );
 }
 
-function TripSection({ trip }: { trip: Trip }) {
+function TripSection({ trip: full, code }: { trip: Trip; code: string }) {
+  // only this country's places (stops without a country belong to every country of the trip)
+  const trip = { ...full, trip_stops: full.trip_stops.filter((s) => !s.country_code || s.country_code === code) };
+  const others = full.countries.filter((c) => c.code !== code);
   const { userId } = Route.useRouteContext();
   const { groupId } = useGroup();
   const profiles = useProfilesMap(groupId);
+  const avatarUrl = useAvatarUrls(Object.values(profiles).map((p) => p.avatar_url));
   const upcoming = isUpcoming(trip, todayISO());
   const stopName = (id: string | null) => trip.trip_stops.find((s) => s.id === id)?.name;
   const [filter, setFilter] = useState<string>("all");
@@ -85,7 +89,7 @@ function TripSection({ trip }: { trip: Trip }) {
   ];
 
   return (
-    <article className="rounded-3xl border border-border bg-card/60 p-6 sm:p-8">
+    <article className="rounded-3xl border-2 border-border bg-card p-5 shadow-sticker sm:p-8">
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div>
           {upcoming && <span className="rounded-full bg-planned px-2.5 py-0.5 text-xs font-semibold text-planned-foreground">Upcoming</span>}
@@ -95,7 +99,20 @@ function TripSection({ trip }: { trip: Trip }) {
           </p>
           {trip.trip_stops.length > 0 && (
             <p className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
-              <MapPin className="h-4 w-4" /> {trip.trip_stops.map((s) => s.name).join(" → ")}
+              <MapPin className="h-4 w-4" /> {trip.trip_stops.map((s) => s.name + (s.arrived_on ? ` (${s.arrived_on}${s.left_on ? ` → ${s.left_on}` : ""})` : "")).join(" → ")}
+            </p>
+          )}
+          {others.length > 0 && (
+            <p className="mt-1 text-sm text-muted-foreground">
+              Also on this trip:{" "}
+              {others.map((c, i) => (
+                <span key={c.code}>
+                  {i > 0 && ", "}
+                  <Link to="/countries/$code" params={{ code: c.code }} className="text-sage underline-offset-4 hover:underline">
+                    {flagEmoji(c.code)} {c.name}
+                  </Link>
+                </span>
+              ))}
             </p>
           )}
         </div>
@@ -114,7 +131,7 @@ function TripSection({ trip }: { trip: Trip }) {
             return (
               <div key={m.user_id} className="flex items-center gap-2 rounded-full border border-border py-1 pl-1 pr-3 text-sm">
                 <Avatar className="h-7 w-7">
-                  {p?.avatar_url && <AvatarImage src={p.avatar_url} />}
+                  {avatarUrl(p?.avatar_url) && <AvatarImage src={avatarUrl(p?.avatar_url)} />}
                   <AvatarFallback className="bg-accent text-xs">{p?.display_name?.[0] ?? "?"}</AvatarFallback>
                 </Avatar>
                 {p?.display_name ?? "Friend"}

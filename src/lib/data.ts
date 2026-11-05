@@ -6,7 +6,9 @@ export type Profile = Tables<"profiles">;
 export type Stop = Tables<"trip_stops">;
 export type Media = Tables<"trip_media">;
 export type Note = Tables<"trip_notes">;
+export type TripCountry = { code: string; name: string };
 export type Trip = Tables<"trips"> & {
+  countries: TripCountry[];
   trip_stops: Stop[];
   trip_members: { user_id: string }[];
   trip_media: Media[];
@@ -21,13 +23,16 @@ export const tripsQuery = (groupId: string | null) => queryOptions({
   queryFn: async (): Promise<Trip[]> => {
     const { data, error } = await supabase
       .from("trips")
-      .select("*, trip_stops(*), trip_members(user_id), trip_media(*), trip_notes(*)")
+      .select("*, trip_stops(*), trip_members(user_id), trip_media(*), trip_notes(*), trip_countries(*)")
       .eq("group_id", groupId!)
       .order("start_date", { ascending: false });
     if (error) throw error;
     return (data ?? []).map((t) => ({
       ...t,
       trip_stops: [...(t.trip_stops ?? [])].sort((a, b) => a.position - b.position),
+      countries: t.trip_countries?.length
+        ? [...t.trip_countries].sort((a, b) => a.position - b.position).map((c) => ({ code: c.country_code, name: c.country_name }))
+        : [{ code: t.country_code, name: t.country_name }],
     })) as Trip[];
   },
 });
@@ -85,4 +90,30 @@ export async function geocode(q: string, countryCode?: string): Promise<GeoResul
   if (!res.ok) throw new Error(`Place search failed (${res.status})`);
   const json = (await res.json()) as { display_name: string; lat: string; lon: string }[];
   return json.map((r) => ({ name: r.display_name.split(",")[0] ?? r.display_name, lat: Number(r.lat), lng: Number(r.lon) }));
+}
+
+export const AVATAR_BUCKET = "avatars";
+
+/** Resolve stored avatar values (bucket paths or legacy links) to displayable URLs. */
+export function useAvatarUrls(values: (string | null | undefined)[]) {
+  const paths = [...new Set(values.filter((v): v is string => !!v && !/^https?:/.test(v)))].sort();
+  const { data = {} } = useQuery({
+    queryKey: ["avatar-signed", paths],
+    enabled: paths.length > 0,
+    staleTime: 50 * 60 * 1000,
+    queryFn: async () => {
+      const { data, error } = await supabase.storage.from(AVATAR_BUCKET).createSignedUrls(paths, 3600);
+      if (error) throw error;
+      return Object.fromEntries((data ?? []).map((d) => [d.path ?? "", d.signedUrl])) as Record<string, string>;
+    },
+  });
+  return (v: string | null | undefined) => (!v ? undefined : /^https?:/.test(v) ? v : data[v]);
+}
+
+export async function uploadAvatar(userId: string, file: File) {
+  const ext = file.name.split(".").pop() ?? "jpg";
+  const path = `${userId}/${crypto.randomUUID()}.${ext}`;
+  const { error } = await supabase.storage.from(AVATAR_BUCKET).upload(path, file, { contentType: file.type });
+  if (error) throw error;
+  return path;
 }

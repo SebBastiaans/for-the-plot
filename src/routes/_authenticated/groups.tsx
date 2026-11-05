@@ -37,7 +37,7 @@ function GroupsPage() {
   }
 
   return (
-    <main className="mx-auto max-w-3xl px-5 pb-24 pt-28">
+    <main className="mx-auto max-w-3xl px-4 pb-28 pt-20 sm:px-5 sm:pt-28 md:pb-24">
       <p className="eyebrow">Your crews</p>
       <h1 className="mt-2 text-5xl">Groups</h1>
       <p className="mt-2 text-muted-foreground">Each group has its own globe, trips and rankings.</p>

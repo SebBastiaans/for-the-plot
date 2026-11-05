@@ -100,6 +100,35 @@ export type Database = {
         }
         Relationships: []
       }
+      trip_countries: {
+        Row: {
+          country_code: string
+          country_name: string
+          position: number
+          trip_id: string
+        }
+        Insert: {
+          country_code: string
+          country_name: string
+          position?: number
+          trip_id: string
+        }
+        Update: {
+          country_code?: string
+          country_name?: string
+          position?: number
+          trip_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trip_countries_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       trip_media: {
         Row: {
           caption: string | null
@@ -242,24 +271,33 @@ export type Database = {
       }
       trip_stops: {
         Row: {
+          arrived_on: string | null
+          country_code: string | null
           id: string
           lat: number
+          left_on: string | null
           lng: number
           name: string
           position: number
           trip_id: string
         }
         Insert: {
+          arrived_on?: string | null
+          country_code?: string | null
           id?: string
           lat: number
+          left_on?: string | null
           lng: number
           name: string
           position?: number
           trip_id: string
         }
         Update: {
+          arrived_on?: string | null
+          country_code?: string | null
           id?: string
           lat?: number
+          left_on?: string | null
           lng?: number
           name?: string
           position?: number

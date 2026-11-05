@@ -38,7 +38,7 @@ function Upcoming() {
   }
 
   return (
-    <main className="mx-auto max-w-4xl px-5 pb-24 pt-28">
+    <main className="mx-auto max-w-4xl px-4 pb-28 pt-20 sm:px-5 sm:pt-28 md:pb-24">
       <p className="eyebrow">Next up</p>
       <h1 className="mt-2 text-5xl">Upcoming trips</h1>
       {!loading && !groupId ? <div className="mt-10"><NeedGroup /></div> : isLoading ? <p className="mt-8 text-muted-foreground">Loading…</p> : trips.length === 0 ? (
@@ -51,17 +51,17 @@ function Upcoming() {
             const days = tripDays(today, t.start_date) - 1;
             const joined = t.trip_members.some((m) => m.user_id === userId);
             return (
-              <li key={t.id} className="flex flex-wrap items-center gap-5 rounded-2xl border border-border bg-card p-5">
+              <li key={t.id} className="flex flex-wrap items-center gap-4 rounded-3xl border-2 border-border bg-card p-4 shadow-sticker sm:gap-5 sm:p-5">
                 <div className="w-24 text-center">
                   <p className="font-display text-5xl text-planned">{days}</p>
                   <p className="eyebrow">days to go</p>
                 </div>
                 <div className="min-w-0 flex-1">
-                  <Link to="/countries/$code" params={{ code: t.country_code }} className="text-xl font-semibold hover:text-sage">
-                    {flagEmoji(t.country_code)} {t.title}
+                  <Link to="/countries/$code" params={{ code: t.countries[0]!.code }} className="text-xl font-semibold hover:text-sage">
+                    {t.countries.map((c) => flagEmoji(c.code)).join("")} {t.title}
                   </Link>
                   <p className="text-sm text-muted-foreground">
-                    {t.country_name} · {t.start_date} → {t.end_date}
+                    {t.countries.map((c) => c.name).join(", ")} · {t.start_date} → {t.end_date}
                     {t.trip_stops.length > 0 && ` · ${t.trip_stops.map((s) => s.name).join(" → ")}`}
                   </p>
                   <p className="mt-1 text-sm">
