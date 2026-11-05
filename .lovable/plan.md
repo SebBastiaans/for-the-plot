@@ -14,7 +14,16 @@
 
 6. **New color scheme (whole site)** - near-black backgrounds, white text and soft greys for cards and borders. The greens are used only to highlight: visited countries on the globe, buttons, numbers in stats, active filters and map routes. Amber stays for planned trips. The globe itself becomes dark charcoal with dim white dots; visited countries glow green.
 
+7. **Groups (signed in)** - every trip belongs to one group. Each group has its own globe, country pages, rankings and upcoming trips; nobody outside the group can see them.
+   - A group switcher in the top bar lets you swap between your groups; the whole site follows the selected group.
+   - New **Groups page (/groups)**: create a group (name), see its members, copy an invite link, leave a group. The creator can remove members and rename/delete the group.
+   - **Invite link (/join/$code)**: anyone who opens it signs in (or signs up) and is added to the group, then lands on its globe.
+   - New users without a group are asked to create one or use an invite link.
+   - Existing trips (if any) get moved into a first group automatically for their creator.
+   - "Who went" on a trip only lists members of that group.
+
 ## Technical details
+- Groups: new `groups` (name, invite_code, created_by) and `group_members` (group, user) tables. `trips` gets a `group_id`; all read policies on trips/stops/members/media/notes switch from "any signed-in user" to "member of the trip's group" via a security-definer `is_group_member` helper. Joining by invite goes through a security-definer function `join_group(code)` so invite codes are never listable. Selected group stored in localStorage and passed into queries (`tripsQuery(groupId)`), profiles list filtered to group members. Storage read policy narrowed to group members.
 - `src/styles.css`: rework tokens to neutral black/white (background ~#0b0b0b, cards ~#151515, borders grey, foreground off-white); primary/sage/moss stay green as accents; globe surface/dim/atmosphere tokens switched to charcoal/white; hero gradient becomes a subtle grey radial glow.
 - `src/routes/index.tsx`: hero section ~100svh with centered text; globe wrapper absolutely positioned, width/height ~150vh-ish square, centered horizontally, top offset so its center lands near the bottom edge of the hero; hero `overflow-hidden` removed in favor of a parent wrapper clipping horizontal overflow only. New section with negative top margin and a `--gradient-fade` token (transparent to background) layered above the globe (`relative z-10`).
 - `src/components/Globe.tsx`: `controls.enableZoom = false`; set a fixed camera distance via `pointOfView({ altitude })` once on load so the globe fills its larger box; keep pointer events for dragging.
