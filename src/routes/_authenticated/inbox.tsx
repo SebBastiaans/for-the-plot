@@ -9,9 +9,9 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/_authenticated/inbox")({
   head: () => ({
     meta: [
-      { title: "Inbox — Crossed Off" },
+      { title: "Inbox — For The Plot" },
       { name: "description", content: "Accept or decline trips your friends tagged you on." },
-      { property: "og:title", content: "Inbox — Crossed Off" },
+      { property: "og:title", content: "Inbox — For The Plot" },
       { property: "og:description", content: "Confirm the trips you went on with friends." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

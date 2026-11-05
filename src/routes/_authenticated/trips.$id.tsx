@@ -8,9 +8,9 @@ import { useGroup } from "@/lib/group";
 export const Route = createFileRoute("/_authenticated/trips/$id")({
   head: () => ({
     meta: [
-      { title: "Trip — Crossed Off" },
+      { title: "Trip — For The Plot" },
       { name: "description", content: "A trip in full: route, dates, who went, photos, videos and stories." },
-      { property: "og:title", content: "Trip — Crossed Off" },
+      { property: "og:title", content: "Trip — For The Plot" },
       { property: "og:description", content: "Route, people, photos and stories of one trip." },
       { property: "og:type", content: "article" },
       { name: "twitter:card", content: "summary" },

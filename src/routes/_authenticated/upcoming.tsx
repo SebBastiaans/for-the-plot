@@ -12,9 +12,9 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/_authenticated/upcoming")({
   head: () => ({
     meta: [
-      { title: "Upcoming trips — Crossed Off" },
+      { title: "Upcoming trips — For The Plot" },
       { name: "description", content: "Our planned trips with countdowns and who's coming along." },
-      { property: "og:title", content: "Upcoming trips — Crossed Off" },
+      { property: "og:title", content: "Upcoming trips — For The Plot" },
       { property: "og:description", content: "Where we're going next." },
     ],
   }),

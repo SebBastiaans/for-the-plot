@@ -16,9 +16,9 @@ const Globe = lazy(() => import("@/components/Globe"));
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Crossed Off — the countries our crew has visited" },
+      { title: "For The Plot — the countries our crew has visited" },
       { name: "description", content: "Spin the globe and see every country we've crossed off together, with trips, routes, photos and stories." },
-      { property: "og:title", content: "Crossed Off — our travel globe" },
+      { property: "og:title", content: "For The Plot — our travel globe" },
       { property: "og:description", content: "Spin the globe and see every country we've crossed off together." },
     ],
   }),

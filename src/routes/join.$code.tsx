@@ -12,10 +12,10 @@ export const PENDING_INVITE_KEY = "crossed-off:invite";
 export const Route = createFileRoute("/join/$code")({
   head: () => ({
     meta: [
-      { title: "You're invited — Crossed Off" },
+      { title: "You're invited — For The Plot" },
       { name: "description", content: "Join your friends' travel group and see every country you've crossed off together." },
       { property: "og:title", content: "You're invited to a travel crew" },
-      { property: "og:description", content: "Join your friends' travel group on Crossed Off." },
+      { property: "og:description", content: "Join your friends' travel group on For The Plot." },
     ],
   }),
   component: JoinPage,

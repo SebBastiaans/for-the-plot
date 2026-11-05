@@ -13,9 +13,9 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/_authenticated/import")({
   head: () => ({
     meta: [
-      { title: "Import photos — Crossed Off" },
+      { title: "Import photos — For The Plot" },
       { name: "description", content: "Pick photos from your camera roll and sort them into trips automatically." },
-      { property: "og:title", content: "Import photos — Crossed Off" },
+      { property: "og:title", content: "Import photos — For The Plot" },
       { property: "og:description", content: "Sort your camera roll into trips by time and place." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

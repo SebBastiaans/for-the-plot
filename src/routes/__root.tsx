@@ -77,7 +77,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
       { name: "color-scheme", content: "light dark" },
-      { title: "Crossed Off — our travel globe" },
+      { title: "For The Plot — our travel globe" },
       { name: "description", content: "Every country we've crossed off together, on one spinnable globe." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

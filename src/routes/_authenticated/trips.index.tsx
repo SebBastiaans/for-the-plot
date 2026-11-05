@@ -11,9 +11,9 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/_authenticated/trips/")({
   head: () => ({
     meta: [
-      { title: "My trips — Crossed Off" },
+      { title: "My trips — For The Plot" },
       { name: "description", content: "All your trips in one list: countries, dates, places, photos and who came along." },
-      { property: "og:title", content: "My trips — Crossed Off" },
+      { property: "og:title", content: "My trips — For The Plot" },
       { property: "og:description", content: "Every trip you've been on, in one list." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

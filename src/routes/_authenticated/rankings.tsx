@@ -8,9 +8,9 @@ import { computeStats, todayISO, type Ranked } from "@/lib/stats";
 export const Route = createFileRoute("/_authenticated/rankings")({
   head: () => ({
     meta: [
-      { title: "Rankings — Crossed Off" },
+      { title: "Rankings — For The Plot" },
       { name: "description", content: "Leaderboards for our crew: top countries, cities, most days abroad and more." },
-      { property: "og:title", content: "Rankings — Crossed Off" },
+      { property: "og:title", content: "Rankings — For The Plot" },
       { property: "og:description", content: "Who has seen the most of the world?" },
     ],
   }),
