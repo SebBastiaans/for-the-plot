@@ -127,7 +127,7 @@ function Index() {
       </section>
 
       {session && (
-        <section className="mx-auto max-w-6xl px-5 pb-24">
+        <section className="relative z-10 mx-auto max-w-6xl bg-background px-5 pb-24">
           {!loading && !groupId ? <NeedGroup /> : (
             <>
               <div className="grid gap-4 sm:grid-cols-3">
