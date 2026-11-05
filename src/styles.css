@@ -231,9 +231,9 @@
   }
 }
 
-@utility shadow-sticker {
-  box-shadow: var(--shadow-sticker);
-}
+// @utility shadow-sticker {
+//   box-shadow: var(--shadow-sticker);
+// }
 
 @utility pb-safe {
   padding-bottom: calc(env(safe-area-inset-bottom) + 0.5rem);
