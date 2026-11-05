@@ -176,8 +176,9 @@ export default function Globe({
         polygonsTransitionDuration={200}
         polygonAltitude={(f: object) => {
           const code = (f as Feature).properties.ISO_A2;
-          return statuses[code] ? 0.0015 : 0.001;
+          return statuses[code] ? 0.004 : 0.001;
         }}
+        polygonCapCurvatureResolution={1}
         polygonCapColor={(f: object) => {
           const c = statusColor((f as Feature).properties.ISO_A2);
           return c ? alpha(c, 0.6) : "rgba(0,0,0,0)";
