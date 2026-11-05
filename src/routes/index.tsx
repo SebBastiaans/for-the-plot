@@ -94,12 +94,14 @@ function Index() {
           )}
         </div>
         {/* Big globe: its center sits near the bottom of the first screen, so only the top half shows */}
-        <div className="absolute left-1/2 top-[52svh] h-[min(150vw,1500px)] w-[min(150vw,1500px)] -translate-x-1/2 sm:top-[46svh] sm:h-[min(110vw,1300px)] sm:w-[min(110vw,1300px)]">
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-[135svh] overflow-hidden">
+        <div className="pointer-events-auto absolute left-1/2 top-[52svh] h-[min(150vw,1500px)] w-[min(150vw,1500px)] -translate-x-1/2 sm:top-[46svh] sm:h-[min(110vw,1300px)] sm:w-[min(110vw,1300px)]">
           <ClientOnly fallback={<GlobeFallback />}>
             <Suspense fallback={<GlobeFallback />}>
               <Globe statuses={statuses} onCountryClick={(code) => navigate({ to: "/countries/$code", params: { code } })} />
             </Suspense>
           </ClientOnly>
+        </div>
         </div>
       </section>
 
