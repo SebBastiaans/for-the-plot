@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { ME, addMediaToTrip, participants, tripsQuery, type Trip } from "@/lib/data";
 import { clusterByDays, matchTrip, readPhotoMeta, type PhotoMeta } from "@/lib/photos";
-import { getCountry } from "@/lib/countries";
+import { COUNTRIES, getCountry } from "@/lib/countries";
 import { MediaPicker } from "@/components/MediaPicker";
 import { ErrorState, LoadingState, errText } from "@/components/States";
 import { Button } from "@/components/ui/button";
@@ -46,6 +46,10 @@ function ImportPage() {
   const [reading, setReading] = useState(false);
   const [busy, setBusy] = useState<string | null>(null);
   const [countries, setCountries] = useState<Record<string, string | null>>({});
+  const [picked, setPicked] = useState<Record<string, string>>({});
+  const [withUndated, setWithUndated] = useState<Record<string, boolean>>({});
+  const [undatedTrip, setUndatedTrip] = useState("");
+  const [undatedDate, setUndatedDate] = useState("");
 
   async function sort() {
     setReading(true);
@@ -95,10 +99,25 @@ function ImportPage() {
     finally { setBusy(null); }
   }
 
+  async function addUndated(tripId: string) {
+    const trip = trips.find((t) => t.id === tripId);
+    if (!trip) return;
+    setBusy("undated");
+    const t = toast.loading(`Uploading ${undated.length} to ${trip.title}…`);
+    try {
+      await addMediaToTrip(userId, trip, undated.map((i) => i.file), { takenAt: undatedDate ? `${undatedDate}T12:00:00Z` : null });
+      await qc.invalidateQueries({ queryKey: ["trips"] });
+      toast.success(`Added ${undated.length} to ${trip.title}`, { id: t });
+      done(undated);
+    } catch (e) { toast.error(`Upload failed: ${errText(e)}`, { id: t }); }
+    finally { setBusy(null); }
+  }
+
   async function createTrip(s: { start: string; end: string; items: Item[] }) {
-    const code = countries[s.start];
+    const code = picked[s.start] || countries[s.start];
     const c = code ? getCountry(code) : undefined;
-    if (!c) { toast.error("No location in these photos, so add this trip by hand."); return; }
+    if (!c) { toast.error("Pick a country first."); return; }
+    if (withUndated[s.start]) s = { ...s, items: [...s.items, ...undated] };
     setBusy(s.start);
     const t = toast.loading("Creating trip…");
     try {
@@ -146,13 +165,32 @@ function ImportPage() {
                 </div>
               ))}
               {suggestions.map((s) => {
-                const code = countries[s.start];
+                const found = countries[s.start];
+                const code = picked[s.start] || found;
                 const name = code ? getCountry(code)?.name : undefined;
                 return (
                   <div key={s.start} className="rounded-2xl border border-dashed border-border p-4">
                     <p className="eyebrow">Suggested new trip</p>
-                    <p className="mt-1 font-semibold">{name ? `Trip to ${name}` : code === undefined ? "Finding the place…" : "Unknown place"}</p>
+                    <p className="mt-1 font-semibold">{name ? `Trip to ${name}` : found === undefined ? "Finding the place…" : "Where was this?"}</p>
                     <p className="text-sm text-muted-foreground">{fmt(s.start)} – {fmt(s.end)} · {s.items.length} items</p>
+                    <label className="mt-3 block text-sm font-semibold">
+                      Country
+                      <select
+                        className="mt-1 block w-full rounded-full border border-border bg-background px-4 py-2 text-base"
+                        value={code ?? ""}
+                        onChange={(e) => setPicked((p) => ({ ...p, [s.start]: e.target.value }))}
+                      >
+                        <option value="">Pick a country…</option>
+                        {COUNTRIES.map((c) => <option key={c.code} value={c.code}>{c.name}</option>)}
+                      </select>
+                    </label>
+                    {undated.length > 0 && (
+                      <label className="mt-3 flex items-center gap-2 text-sm">
+                        <input type="checkbox" className="size-5" checked={!!withUndated[s.start]}
+                          onChange={(e) => setWithUndated((w) => ({ ...w, [s.start]: e.target.checked }))} />
+                        Also add the {undated.length} {undated.length === 1 ? "item" : "items"} without a date
+                      </label>
+                    )}
                     <Button size="sm" className="mt-3" disabled={!!busy || !name} onClick={() => createTrip(s)}>
                       {busy === s.start ? "Creating…" : "Create this trip"}
                     </Button>
@@ -160,9 +198,27 @@ function ImportPage() {
                 );
               })}
               {undated.length > 0 && (
-                <p className="text-sm text-muted-foreground">
-                  {undated.length} {undated.length === 1 ? "item has" : "items have"} no date info. Add them on a trip's page by hand.
-                </p>
+                <div className="rounded-2xl border border-border bg-card p-4">
+                  <p className="eyebrow">No date found</p>
+                  <p className="mt-1 font-semibold">{undated.length} {undated.length === 1 ? "item" : "items"} without a date</p>
+                  <label className="mt-3 block text-sm font-semibold">
+                    Add to trip
+                    <select className="mt-1 block w-full rounded-full border border-border bg-background px-4 py-2 text-base"
+                      value={undatedTrip} onChange={(e) => setUndatedTrip(e.target.value)}>
+                      <option value="">Pick a trip…</option>
+                      {trips.map((t) => <option key={t.id} value={t.id}>{t.title} ({fmt(t.start_date)})</option>)}
+                    </select>
+                  </label>
+                  <label className="mt-3 block text-sm font-semibold">
+                    Date (optional)
+                    <input type="date" className="mt-1 block w-full rounded-full border border-border bg-background px-4 py-2 text-base"
+                      value={undatedDate} onChange={(e) => setUndatedDate(e.target.value)} />
+                  </label>
+                  <Button size="sm" className="mt-3" disabled={!!busy || !undatedTrip} onClick={() => addUndated(undatedTrip)}>
+                    {busy === "undated" ? "Uploading…" : `Add ${undated.length} to this trip`}
+                  </Button>
+                  {suggestions.length > 0 && <p className="mt-2 text-sm text-muted-foreground">Or tick the box on a suggested trip above.</p>}
+                </div>
               )}
             </div>
           )}
