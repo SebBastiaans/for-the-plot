@@ -11,13 +11,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useGroup } from "@/lib/group";
 
 type DraftStop = { id?: string; name: string; lat: number; lng: number };
 
 export function TripForm({ userId, trip }: { userId: string; trip?: Trip }) {
   const navigate = useNavigate();
   const qc = useQueryClient();
-  const { data: profiles = [] } = useQuery(profilesQuery);
+  const { groupId } = useGroup();
+  const { data: profiles = [] } = useQuery(profilesQuery(groupId));
   const [country, setCountry] = useState(trip?.country_code ?? "");
   const [title, setTitle] = useState(trip?.title ?? "");
   const [start, setStart] = useState(trip?.start_date ?? "");
@@ -59,7 +61,7 @@ export function TripForm({ userId, trip }: { userId: string; trip?: Trip }) {
         const { error } = await supabase.from("trips").update(row).eq("id", tripId);
         if (error) throw error;
       } else {
-        const { data, error } = await supabase.from("trips").insert({ ...row, created_by: userId }).select("id").single();
+        const { data, error } = await supabase.from("trips").insert({ ...row, created_by: userId, group_id: groupId! }).select("id").single();
         if (error) throw error;
         tripId = data.id;
       }

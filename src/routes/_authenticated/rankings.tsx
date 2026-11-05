@@ -1,3 +1,4 @@
+import { useGroup, NeedGroup } from "@/lib/group";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { profilesQuery, tripsQuery } from "@/lib/data";
@@ -40,8 +41,9 @@ function Board({ title, items, unit }: { title: string; items: Ranked[]; unit: s
 }
 
 function Rankings() {
-  const trips = useQuery(tripsQuery);
-  const profiles = useQuery(profilesQuery);
+  const { groupId, group, loading } = useGroup();
+  const trips = useQuery(tripsQuery(groupId));
+  const profiles = useQuery(profilesQuery(groupId));
   const names = Object.fromEntries((profiles.data ?? []).map((p) => [p.id, p.display_name]));
   const s = computeStats(
     (trips.data ?? []).map((t) => ({
@@ -58,6 +60,8 @@ function Rankings() {
     <main className="mx-auto max-w-6xl px-5 pb-24 pt-28">
       <p className="eyebrow">Leaderboards</p>
       <h1 className="mt-2 text-5xl">Rankings & stats</h1>
+      {group && <p className="mt-2 text-muted-foreground">{group.name}</p>}
+      {!loading && !groupId && <div className="mt-10"><NeedGroup /></div>}
       <div className="mt-8 grid gap-4 sm:grid-cols-3">
         {[["Countries", s.totalCountries], ["Trips", s.totalTrips], ["Continents", s.totalContinents]].map(([l, v]) => (
           <div key={l} className="rounded-2xl border border-border bg-card p-6">
