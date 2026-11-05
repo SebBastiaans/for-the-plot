@@ -44,7 +44,7 @@ export function SiteNav() {
   return (
     <>
       <header className="pointer-events-none fixed inset-x-0 top-2 z-40 flex justify-center px-3 sm:top-3">
-        <div className="pointer-events-auto flex h-14 w-full max-w-4xl items-center gap-3 rounded-full border border-border/70 bg-background/80 pl-2 pr-2 shadow-sticker backdrop-blur-xl sm:gap-5 sm:pr-3">
+        <div className="pointer-events-auto flex h-14 w-full max-w-4xl items-center gap-3 rounded-full border border-border/70 bg-background/80 pl-2 pr-2 backdrop-blur-xl sm:gap-5 sm:pr-3">
           <Link to="/" className="flex shrink-0 items-center gap-2 font-display text-lg font-extrabold">
             <span className="grid h-8 w-8 place-items-center rounded-full bg-sage text-primary-foreground">
               <Globe2 className="h-5 w-5" />
