@@ -51,7 +51,13 @@ export default function Globe({
     if (!el) return;
     const ro = new ResizeObserver(([e]) => e && setSize({ w: e.contentRect.width, h: e.contentRect.height }));
     ro.observe(el);
-    return () => ro.disconnect();
+    // Let the mouse wheel scroll the page instead of zooming the globe.
+    const stop = (e: WheelEvent) => e.stopPropagation();
+    el.addEventListener("wheel", stop, { capture: true });
+    return () => {
+      ro.disconnect();
+      el.removeEventListener("wheel", stop, { capture: true });
+    };
   }, []);
 
   useEffect(() => {
