@@ -21,7 +21,7 @@ import { Route as AuthenticatedUpcomingRouteImport } from './routes/_authenticat
 import { Route as JoinCodeRouteImport } from './routes/join.$code'
 import { Route as AuthenticatedCountriesCodeRouteImport } from './routes/_authenticated/countries.$code'
 import { Route as AuthenticatedTripsNewRouteImport } from './routes/_authenticated/trips.new'
-import { Route as AuthenticatedTripsIdEditRouteImport } from './routes/_authenticated/trips.$id.edit'
+import { Route as AuthenticatedTripsIdEditRouteImport } from './routes/_authenticated/trips.$id_.edit'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -85,7 +85,7 @@ const AuthenticatedTripsNewRoute = AuthenticatedTripsNewRouteImport.update({
 } as any)
 const AuthenticatedTripsIdEditRoute =
   AuthenticatedTripsIdEditRouteImport.update({
-    id: '/trips/$id/edit',
+    id: '/trips/$id_/edit',
     path: '/trips/$id/edit',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
@@ -132,7 +132,7 @@ export interface FileRoutesById {
   '/join/$code': typeof JoinCodeRoute
   '/_authenticated/countries/$code': typeof AuthenticatedCountriesCodeRoute
   '/_authenticated/trips/new': typeof AuthenticatedTripsNewRoute
-  '/_authenticated/trips/$id/edit': typeof AuthenticatedTripsIdEditRoute
+  '/_authenticated/trips/$id_/edit': typeof AuthenticatedTripsIdEditRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -177,7 +177,7 @@ export interface FileRouteTypes {
     | '/join/$code'
     | '/_authenticated/countries/$code'
     | '/_authenticated/trips/new'
-    | '/_authenticated/trips/$id/edit'
+    | '/_authenticated/trips/$id_/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -273,8 +273,8 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTripsNewRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/trips/$id/edit': {
-      id: '/_authenticated/trips/$id/edit'
+    '/_authenticated/trips/$id_/edit': {
+      id: '/_authenticated/trips/$id_/edit'
       path: '/trips/$id/edit'
       fullPath: '/trips/$id/edit'
       preLoaderRoute: typeof AuthenticatedTripsIdEditRouteImport

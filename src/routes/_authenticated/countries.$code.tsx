@@ -1,21 +1,10 @@
 import { useGroup } from "@/lib/group";
-import { ClientOnly, createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { lazy, Suspense, useState } from "react";
-import { CalendarDays, MapPin, Pencil, Trash2 } from "lucide-react";
-import { toast } from "sonner";
-import { MediaPicker } from "@/components/MediaPicker";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { ErrorState, LoadingState } from "@/components/States";
 import { TripSection } from "@/components/TripDetails";
-import { supabase } from "@/integrations/supabase/client";
 import { flagEmoji, getCountry } from "@/lib/countries";
-import { participants, tripsQuery, addMediaToTrip, useProfilesMap, useAvatarUrls, useSignedUrls, type Trip } from "@/lib/data";
-import { isUpcoming, todayISO, tripDays } from "@/lib/stats";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-
+import { tripsQuery } from "@/lib/data";
 
 export const Route = createFileRoute("/_authenticated/countries/$code")({
   head: ({ params }) => {
