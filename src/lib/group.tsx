@@ -30,14 +30,14 @@ export function GroupProvider({ children }: { children: ReactNode }) {
     setStored(localStorage.getItem(KEY));
   }, []);
 
-  const group = groups.find((g) => g.id === stored) ?? groups[0] ?? null;
+  const group = stored === "me" ? null : groups.find((g) => g.id === stored) ?? groups[0] ?? null;
   const setGroupId = (id: string) => {
     localStorage.setItem(KEY, id);
     setStored(id);
   };
 
   return (
-    <Ctx.Provider value={{ groups, group, groupId: group?.id ?? null, loading: !ready || (!!session && isLoading), setGroupId }}>
+    <Ctx.Provider value={{ groups, group, groupId: group?.id ?? (session ? "me" : null), loading: !ready || (!!session && isLoading), setGroupId }}>
       {children}
     </Ctx.Provider>
   );
