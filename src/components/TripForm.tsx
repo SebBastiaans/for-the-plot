@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "@tanstack/react-router";
+import { Suspense, lazy, useState } from "react";
+import { ClientOnly, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowDown, ArrowUp, Search, X } from "lucide-react";
 import { toast } from "sonner";
@@ -12,6 +12,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
+
+const PlacePickerMap = lazy(() => import("@/components/PlacePickerMap"));
 
 type DraftStop = { id?: string; name: string; lat: number; lng: number; country_code?: string | null; arrived_on?: string | null; left_on?: string | null };
 
@@ -31,6 +33,14 @@ export function TripForm({ userId, trip }: { userId: string; trip?: Trip }) {
   const [q, setQ] = useState("");
   const [results, setResults] = useState<GeoResult[]>([]);
   const [busy, setBusy] = useState(false);
+  const [hover, setHover] = useState<number | null>(null);
+
+  function addResult(i: number) {
+    const r = results[i];
+    if (!r) return;
+    setStops([...stops, { name: r.name, lat: r.lat, lng: r.lng, country_code: country || null }]);
+    setResults([]); setQ(""); setHover(null);
+  }
 
   async function search() {
     if (!q.trim()) return;
@@ -176,16 +186,30 @@ export function TripForm({ userId, trip }: { userId: string; trip?: Trip }) {
           <Button type="button" variant="secondary" onClick={search}><Search className="h-4 w-4" /></Button>
         </div>
         {results.length > 0 && (
-          <ul className="rounded-md border border-border bg-popover text-sm">
-            {results.map((r, i) => (
-              <li key={i}>
-                <button type="button" className="w-full px-3 py-2 text-left hover:bg-accent"
-                  onClick={() => { setStops([...stops, { ...r, country_code: country || null }]); setResults([]); setQ(""); }}>
-                  {r.name} <span className="text-muted-foreground">({r.lat.toFixed(2)}, {r.lng.toFixed(2)})</span>
-                </button>
-              </li>
-            ))}
-          </ul>
+          <div className="space-y-2">
+            <ClientOnly fallback={<div className="h-48 rounded-xl border border-border sm:h-56" />}>
+              <Suspense fallback={<div className="h-48 rounded-xl border border-border sm:h-56" />}>
+                <PlacePickerMap places={results} active={hover} onHover={setHover} onPick={addResult} />
+              </Suspense>
+            </ClientOnly>
+            <ul className="rounded-xl border border-border bg-popover text-sm">
+              {results.map((r, i) => (
+                <li key={i}>
+                  <button type="button"
+                    className={`flex w-full items-start gap-3 px-3 py-2.5 text-left hover:bg-accent ${hover === i ? "bg-accent" : ""}`}
+                    onMouseEnter={() => setHover(i)} onMouseLeave={() => setHover(null)} onFocus={() => setHover(i)}
+                    onClick={() => addResult(i)}>
+                    <span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-sage text-xs font-bold text-primary-foreground">{i + 1}</span>
+                    <span className="min-w-0">
+                      <span className="font-semibold">{r.name}</span>
+                      {r.kind && <span className="ml-2 text-xs capitalize text-muted-foreground">{r.kind}</span>}
+                      <span className="block truncate text-xs text-muted-foreground">{r.region ?? "No region info"}</span>
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
         )}
         <ol className="space-y-1.5">
           {stops.map((s, i) => (
