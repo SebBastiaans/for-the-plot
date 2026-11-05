@@ -141,7 +141,7 @@ export default function Globe({
         labelText={(l: object) => (l as { name: string }).name}
         labelSize={0.6}
         labelDotRadius={0}
-        labelAltitude={0.014}
+        labelAltitude={0.028}
         labelResolution={2}
         labelColor={() => colors.label}
         ringsData={rings}
