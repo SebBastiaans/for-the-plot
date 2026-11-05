@@ -89,8 +89,11 @@ export default function Globe({
     () => {
       // simple landscape map (deserts, forests, ice, mountain shading) under the country shapes
       const dark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      const map = new THREE.TextureLoader().load(`/textures/globe-${dark ? "dark" : "light"}.jpg`);
+      const map = new THREE.TextureLoader().load(`/textures/globe-${dark ? "dark" : "light"}.webp`);
       map.colorSpace = THREE.SRGBColorSpace;
+      map.anisotropy = 16;
+      map.generateMipmaps = true;
+      map.minFilter = THREE.LinearMipmapLinearFilter;
       return new THREE.MeshPhongMaterial({ map, color: "#ffffff", emissive: "#ffffff", emissiveMap: map, emissiveIntensity: dark ? 0.35 : 0.05, shininess: 0 });
     },
     [colors.ocean],
@@ -159,13 +162,11 @@ export default function Globe({
         polygonsTransitionDuration={200}
         polygonAltitude={(f: object) => {
           const code = (f as Feature).properties.ISO_A2;
-          return code === hover ? 0.02 : statuses[code] ? 0.01 : 0.006;
+          return statuses[code] ? 0.01 : 0.006;
         }}
         polygonCapColor={(f: object) => {
-          const code = (f as Feature).properties.ISO_A2;
-          const c = statusColor(code);
-          if (!c) return code === hover ? alpha(colors.visited, 0.3) : "rgba(0,0,0,0)";
-          return alpha(c, code === hover ? 0.85 : 0.6);
+          const c = statusColor((f as Feature).properties.ISO_A2);
+          return c ? alpha(c, 0.6) : "rgba(0,0,0,0)";
         }}
         polygonSideColor={(f: object) => {
           const c = statusColor((f as Feature).properties.ISO_A2);
