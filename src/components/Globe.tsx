@@ -90,7 +90,7 @@ export default function Globe({
     () => {
       // simple landscape map (deserts, forests, ice, mountain shading) under the country shapes
       const dark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      const map = new THREE.TextureLoader().load(`/textures/globe-${dark ? "dark" : "light"}.webp?v=3`);
+      const map = new THREE.TextureLoader().load(`/textures/globe-${dark ? "dark" : "light"}.webp?v=4`);
       map.colorSpace = THREE.SRGBColorSpace;
       map.anisotropy = 16;
       map.generateMipmaps = true;
@@ -163,7 +163,7 @@ export default function Globe({
         polygonsTransitionDuration={200}
         polygonAltitude={(f: object) => {
           const code = (f as Feature).properties.ISO_A2;
-          return statuses[code] ? 0.01 : 0.006;
+          return statuses[code] ? 0.0015 : 0.001;
         }}
         polygonCapColor={(f: object) => {
           const c = statusColor((f as Feature).properties.ISO_A2);
