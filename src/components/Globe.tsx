@@ -164,7 +164,7 @@ export default function Globe({
         labelText={(l: object) => (l as { name: string }).name}
         labelSize={0.6}
         labelDotRadius={0}
-        labelAltitude={0.028}
+        labelAltitude={0.004}
         labelResolution={2}
         labelColor={() => colors.label}
         ringsData={rings}
@@ -182,10 +182,7 @@ export default function Globe({
           const c = statusColor((f as Feature).properties.ISO_A2);
           return c ? alpha(c, 0.6) : "rgba(0,0,0,0)";
         }}
-        polygonSideColor={(f: object) => {
-          const c = statusColor((f as Feature).properties.ISO_A2);
-          return c ? alpha(c, 0.45) : "rgba(0,0,0,0)";
-        }}
+        polygonSideColor={() => "rgba(0,0,0,0)"}
         polygonStrokeColor={(f: object) => {
           const code = (f as Feature).properties.ISO_A2;
           return statuses[code] ? colors.stroke : colors.border;
