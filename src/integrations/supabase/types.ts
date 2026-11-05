@@ -411,6 +411,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_see_profile: { Args: { _user: string }; Returns: boolean }
       can_see_trip: { Args: { _trip: string }; Returns: boolean }
       create_group: { Args: { _name: string }; Returns: string }
       group_name_for_invite: { Args: { _code: string }; Returns: string }
