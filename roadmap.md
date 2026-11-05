@@ -8,3 +8,11 @@
 - [x] Bigger half-globe hero + how-it-works section, no zoom on scroll
 - [x] Black & white base colors with green accents
 - [x] Groups with invite links; separate globe per group
+
+- [ ] Multi-country trips + per-place dates
+- [ ] Avatar photo upload
+- [ ] Light/dark follows device
+- [ ] Satellite globe
+- [ ] Playful theme
+- [ ] Consistent keyboard focus
+- [ ] Mobile-first on every page
