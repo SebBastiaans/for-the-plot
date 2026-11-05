@@ -174,3 +174,25 @@ export const invitesQuery = (userId: string | undefined) => queryOptions({
     return (data ?? []) as Invite[];
   },
 });
+
+/** Upload files to a trip; each one is tagged to a place and time from its own photo info unless given. */
+export async function addMediaToTrip(
+  userId: string,
+  trip: { id: string; trip_stops: Stop[] },
+  files: File[],
+  opts: { caption?: string | null; stopId?: string | null; takenAt?: string | null; onProgress?: (p: number) => void } = {},
+) {
+  const { readPhotoMeta, matchStop } = await import("@/lib/photos");
+  let done = 0;
+  for (const f of files) {
+    const meta = await readPhotoMeta(f);
+    const { path, type } = await uploadMedia(userId, trip.id, f);
+    const { error } = await supabase.from("trip_media").insert({
+      trip_id: trip.id, storage_path: path, media_type: type, caption: opts.caption || null,
+      stop_id: opts.stopId || matchStop(trip.trip_stops, meta),
+      taken_at: opts.takenAt || meta.takenAt, uploaded_by: userId,
+    });
+    if (error) throw error;
+    opts.onProgress?.(++done / files.length);
+  }
+}
