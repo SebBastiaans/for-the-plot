@@ -75,7 +75,7 @@ export default function Globe({
     const g = ref.current;
     if (!g) return;
     const c = g.controls();
-    c.autoRotate = !hover;
+    c.autoRotate = true;
     c.autoRotateSpeed = 0.5;
     c.enableZoom = false;
   }, [hover, features]);

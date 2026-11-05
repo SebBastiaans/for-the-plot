@@ -5,7 +5,7 @@ import { ArrowDown, ArrowUp, Search, X } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { COUNTRIES, flagEmoji, getCountry } from "@/lib/countries";
-import { stopDatesError } from "@/lib/stats";
+import { defaultArrival, stopDatesError } from "@/lib/stats";
 import { ME, geocode, profilesQuery, type GeoResult, type Trip } from "@/lib/data";
 import { Button } from "@/components/ui/button";
 import { StopDays } from "@/components/StopDays";
@@ -39,7 +39,9 @@ export function TripForm({ userId, trip }: { userId: string; trip?: Trip }) {
   function addResult(i: number) {
     const r = results[i];
     if (!r) return;
-    setStops([...stops, { name: r.name, lat: r.lat, lng: r.lng, country_code: country || null }]);
+    const prev = stops[stops.length - 1];
+    const arrived = defaultArrival(start, end, prev?.left_on ?? prev?.arrived_on ?? null, stops.length === 0);
+    setStops([...stops, { name: r.name, lat: r.lat, lng: r.lng, country_code: country || null, arrived_on: arrived }]);
     setResults([]); setQ(""); setHover(null);
   }
 

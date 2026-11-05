@@ -11,7 +11,7 @@ export default function PlacePickerMap({ places, active, onHover, onPick }: {
   places: P[]; active: number | null; onHover: (i: number | null) => void; onPick: (i: number) => void;
 }) {
   const el = useRef<HTMLDivElement>(null);
-  const markers = useRef<HTMLButtonElement[]>([]);
+  const markers = useRef<HTMLElement[]>([]);
   const cb = useRef({ onHover, onPick });
   cb.current = { onHover, onPick };
 
@@ -27,15 +27,19 @@ export default function PlacePickerMap({ places, active, onHover, onPick }: {
     });
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }));
     markers.current = places.map((p, i) => {
-      const b = document.createElement("button");
-      b.type = "button";
+      // outer element is positioned by the map; only the inner dot is scaled
+      const wrap = document.createElement("button");
+      wrap.type = "button";
+      wrap.setAttribute("aria-label", `Result ${i + 1}`);
+      wrap.className = "h-7 w-7";
+      const b = document.createElement("span");
       b.textContent = String(i + 1);
-      b.setAttribute("aria-label", `Result ${i + 1}`);
       b.className = "grid h-7 w-7 place-items-center rounded-full border-2 border-background bg-sage text-xs font-bold text-primary-foreground shadow transition-transform";
-      b.onmouseenter = () => cb.current.onHover(i);
-      b.onmouseleave = () => cb.current.onHover(null);
-      b.onclick = () => cb.current.onPick(i);
-      new maplibregl.Marker({ element: b }).setLngLat([p.lng, p.lat]).addTo(map);
+      wrap.appendChild(b);
+      wrap.onmouseenter = () => cb.current.onHover(i);
+      wrap.onmouseleave = () => cb.current.onHover(null);
+      wrap.onclick = () => cb.current.onPick(i);
+      new maplibregl.Marker({ element: wrap }).setLngLat([p.lng, p.lat]).addTo(map);
       return b;
     });
     if (places.length > 1) {
@@ -49,7 +53,7 @@ export default function PlacePickerMap({ places, active, onHover, onPick }: {
   useEffect(() => {
     markers.current.forEach((b, i) => {
       b.style.transform = i === active ? "scale(1.35)" : "";
-      b.style.zIndex = i === active ? "10" : "";
+      if (b.parentElement) b.parentElement.style.zIndex = i === active ? "10" : "";
     });
   }, [active]);
 
