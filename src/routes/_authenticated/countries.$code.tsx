@@ -43,13 +43,13 @@ function CountryPage() {
   const trips = (data ?? []).filter((t) => t.countries.some((c) => c.code === code.toUpperCase()));
 
   return (
-    <main className="mx-auto max-w-6xl px-5 pb-24 pt-28">
+    <main className="mx-auto max-w-6xl px-4 pb-28 pt-20 sm:px-5 sm:pt-28 md:pb-24">
       <Link to="/" className="eyebrow hover:text-foreground">← Back to globe</Link>
       <div className="mt-4 flex items-center gap-4">
         <span className="text-6xl">{flagEmoji(code)}</span>
         <div>
           <p className="eyebrow">{country?.continent}</p>
-          <h1 className="text-5xl">{country?.name ?? code}</h1>
+          <h1 className="text-4xl sm:text-5xl">{country?.name ?? code}</h1>
         </div>
       </div>
       {isLoading ? (
@@ -89,7 +89,7 @@ function TripSection({ trip: full, code }: { trip: Trip; code: string }) {
   ];
 
   return (
-    <article className="rounded-3xl border border-border bg-card/60 p-6 sm:p-8">
+    <article className="rounded-3xl border-2 border-border bg-card p-5 shadow-sticker sm:p-8">
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div>
           {upcoming && <span className="rounded-full bg-planned px-2.5 py-0.5 text-xs font-semibold text-planned-foreground">Upcoming</span>}

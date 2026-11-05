@@ -23,7 +23,7 @@ function EditTrip() {
   const { data, isLoading } = useQuery(tripsQuery(groupId));
   const trip = data?.find((t) => t.id === id);
   return (
-    <main className="mx-auto max-w-2xl px-5 pb-20 pt-28">
+    <main className="mx-auto max-w-2xl px-4 pb-28 pt-20 sm:px-5 sm:pt-28 md:pb-24">
       <p className="eyebrow">Edit entry</p>
       <h1 className="mb-8 mt-2 text-4xl">{trip?.title ?? "Trip"}</h1>
       {isLoading ? <p className="text-muted-foreground">Loading…</p> : !trip ? (

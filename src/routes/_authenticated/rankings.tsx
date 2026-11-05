@@ -57,7 +57,7 @@ function Rankings() {
   );
 
   return (
-    <main className="mx-auto max-w-6xl px-5 pb-24 pt-28">
+    <main className="mx-auto max-w-6xl px-4 pb-28 pt-20 sm:px-5 sm:pt-28 md:pb-24">
       <p className="eyebrow">Leaderboards</p>
       <h1 className="mt-2 text-5xl">Rankings & stats</h1>
       {group && <p className="mt-2 text-muted-foreground">{group.name}</p>}
