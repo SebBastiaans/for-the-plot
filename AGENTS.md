@@ -33,5 +33,9 @@ use the editor.
 - Data is read/written from the browser with the generated client + React Query (`src/lib/data.ts`); every trip belongs to a group; RLS limits reads to that group's members (`is_group_member`/`can_see_trip`) and writes to owners. The selected group lives in `src/lib/group.tsx` and every trips/profiles query is keyed by it. Joining/creating groups goes through security-definer RPCs so invite codes are never listable. Why: no server functions needed for a small friends app.
 - "Upcoming" vs "visited" is derived from `start_date` vs today (`src/lib/stats.ts`), never stored. Why: avoids stale status.
 - Trip media lives in a private bucket under `<userId>/<tripId>/…` and is shown via signed URLs. Why: workspace blocks public buckets.
-- Globe (react-globe.gl) and route map (MapLibre + OpenFreeMap) are lazy-loaded behind ClientOnly; page wheel events are kept from the globe (fixed size); WebGL colors come from `--globe-*`/`--map-line` hex tokens in styles.css. Why: browser-only libs and three.js cannot parse oklch.
+- Globe (react-globe.gl) and route map (MapLibre + OpenFreeMap) are lazy-loaded behind ClientOnly; page wheel events are kept from the globe (fixed size); WebGL colors come from `--globe-*`/`--map-line` hex tokens in styles.css, re-read on `prefers-color-scheme` change. Why: browser-only libs and three.js cannot parse oklch.
 - Country shapes are bundled in `public/data/countries.geojson` (ISO_A2 fixed for FR/NO); `src/lib/countries.ts` is generated from it.
+
+- A trip's countries live in `trip_countries` (exposed as `trip.countries`); `trips.country_code/name` are deprecated. Stops carry optional `country_code`/`arrived_on`/`left_on`, validated by `stopDatesError`. Why: trips span several countries.
+- Light/dark follows the device via `@media (prefers-color-scheme)` tokens; focus is one global `:focus-visible` rule (no per-component focus utilities). Why: consistent theming and keyboard focus.
+- Avatars live in the private `avatars` bucket under `<userId>/…`; `profiles.avatar_url` stores the path, resolved with `useAvatarUrls`.

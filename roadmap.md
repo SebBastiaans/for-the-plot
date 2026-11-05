@@ -9,10 +9,10 @@
 - [x] Black & white base colors with green accents
 - [x] Groups with invite links; separate globe per group
 
-- [ ] Multi-country trips + per-place dates
-- [ ] Avatar photo upload
-- [ ] Light/dark follows device
-- [ ] Satellite globe
-- [ ] Playful theme
-- [ ] Consistent keyboard focus
-- [ ] Mobile-first on every page
+- [x] Multi-country trips + per-place dates
+- [x] Avatar photo upload
+- [x] Light/dark follows device
+- [x] Satellite globe
+- [x] Playful theme
+- [x] Consistent keyboard focus
+- [x] Mobile-first on every page
